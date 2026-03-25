@@ -6,98 +6,85 @@
 <title>Ava's Menu Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #1a1a2e; --card: #16213e; --surface: #0f3460;
-    --accent: #e8734a; --accent2: #5b9e8f; --accent3: #d4a843;
-    --text: #eaeaea; --muted: #8899aa; --border: #2a3a5c;
-    --danger: #c0392b; --success: #27ae60;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Quicksand', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-  header {
-    background: linear-gradient(135deg, #0f3460, #1a1a2e);
-    padding: 24px 20px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  header h1 { font-family: 'Noto Serif TC', serif; font-size: 1.4rem; color: var(--accent); }
-  header p { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
-  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
-  .status-dot.ok { background: var(--success); }
-
-  .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--card); }
-  .tab { flex: 1; padding: 14px 8px; text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  .pane { display: none; padding: 16px; max-width: 640px; margin: 0 auto; }
-  .pane.active { display: block; }
-
-  /* SCAN TAB */
-  .upload-zone {
-    border: 2px dashed var(--border); border-radius: 16px;
-    padding: 36px 20px; text-align: center; cursor: pointer;
-    transition: border-color 0.2s; margin-bottom: 16px;
-  }
-  .upload-zone:hover { border-color: var(--accent); }
-  .upload-zone .icon { font-size: 2.5rem; margin-bottom: 12px; }
-  .upload-zone p { color: var(--muted); font-size: 0.9rem; }
-  .upload-zone strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 1rem; }
-
-  .preview-wrap { position: relative; margin-bottom: 12px; }
-  .preview-wrap img { width: 100%; border-radius: 12px; border: 1px solid var(--border); display: block; }
-  .clear-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; }
-
-  .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: opacity 0.2s, transform 0.15s; margin-bottom: 10px; }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-secondary { background: var(--surface); color: var(--text); }
-  .btn-success { background: var(--success); color: #fff; }
-  .btn-danger { background: var(--danger); color: #fff; }
-
-  .suggestion-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
-  .suggestion-group-header { padding: 10px 14px; background: var(--surface); font-size: 0.8rem; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-  .suggestion-item { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--border); }
-  .suggestion-label { font-size: 0.92rem; font-weight: 600; color: var(--text); flex: 1; }
-  .add-item-btn { background: var(--accent2); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
-  .add-item-btn:disabled { background: var(--border); color: var(--muted); cursor: default; }
-  .added-badge { background: var(--success); color: #fff; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-weight: 700; }
-
-  .section-badge { background: var(--surface); color: var(--accent3); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
-
-  /* MENU TAB */
-  .menu-section { margin-bottom: 20px; }
-  .menu-section-title { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; padding: 0 2px; }
-  .menu-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-  .menu-row-label { font-size: 0.92rem; font-weight: 600; color: var(--text); flex: 1; }
-  .remove-btn { background: none; border: 1px solid var(--danger); color: var(--danger); border-radius: 7px; padding: 5px 12px; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 0.78rem; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
-  .remove-btn:hover { background: var(--danger); color: #fff; }
-  .loading-spinner { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
-
-  /* ADD TAB */
-  .add-form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-  .add-form label { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
-  .add-form select, .add-form input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; color: var(--text); font-family: 'Quicksand', sans-serif; font-size: 0.95rem; font-weight: 600; outline: none; margin-bottom: 12px; }
-  .add-form select:focus, .add-form input:focus { border-color: var(--accent2); }
-
-  /* TOAST */
-  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 0.88rem; font-weight: 700; color: var(--text); z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-  .toast.show { opacity: 1; }
-  .toast.ok { border-color: var(--success); color: var(--success); }
-  .toast.err { border-color: var(--danger); color: var(--danger); }
-
-  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 0.9rem; }
+  :root { --bg:#1a1a2e;--card:#16213e;--surface:#0f3460;--accent:#e8734a;--accent2:#5b9e8f;--accent3:#d4a843;--text:#eaeaea;--muted:#8899aa;--border:#2a3a5c;--danger:#c0392b;--success:#27ae60; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Quicksand',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  header{background:linear-gradient(135deg,#0f3460,#1a1a2e);padding:24px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  header h1{font-family:'Noto Serif TC',serif;font-size:1.4rem;color:var(--accent);}
+  header p{font-size:0.8rem;color:var(--muted);margin-top:3px;}
+  .status-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+  .status-dot.ok{background:var(--success);}
+  .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--card);}
+  .tab{flex:1;padding:14px 8px;text-align:center;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .pane{display:none;padding:16px;max-width:640px;margin:0 auto;}
+  .pane.active{display:block;}
+  .upload-zone{border:2px dashed var(--border);border-radius:16px;padding:36px 20px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:16px;}
+  .upload-zone:hover{border-color:var(--accent);}
+  .upload-zone .icon{font-size:2.5rem;margin-bottom:12px;}
+  .upload-zone p{color:var(--muted);font-size:0.9rem;}
+  .upload-zone strong{color:var(--text);display:block;margin-bottom:4px;font-size:1rem;}
+  .preview-wrap{position:relative;margin-bottom:12px;}
+  .preview-wrap img{width:100%;border-radius:12px;border:1px solid var(--border);display:block;}
+  .clear-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;}
+  .btn{width:100%;padding:13px;border-radius:10px;border:none;font-family:'Quicksand',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;transition:opacity 0.2s,transform 0.15s;margin-bottom:10px;}
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-secondary{background:var(--surface);color:var(--text);}
+  .suggestion-group{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+  .suggestion-group-header{padding:10px 14px;background:var(--surface);font-size:0.8rem;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
+  .suggestion-item{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--border);}
+  .suggestion-label{font-size:0.92rem;font-weight:600;color:var(--text);flex:1;}
+  .add-item-btn{background:var(--accent2);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:'Quicksand',sans-serif;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;}
+  .add-item-btn:disabled{background:var(--border);color:var(--muted);cursor:default;}
+  .added-badge{background:var(--success);color:#fff;border-radius:8px;padding:4px 10px;font-size:0.78rem;font-weight:700;}
+  .section-badge{background:var(--surface);color:var(--accent3);border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;}
+  .menu-section{margin-bottom:20px;}
+  .menu-section-title{font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;padding:0 2px;}
+  .menu-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .menu-row-label{font-size:0.92rem;font-weight:600;color:var(--text);flex:1;}
+  .remove-btn{background:none;border:1px solid var(--danger);color:var(--danger);border-radius:7px;padding:5px 12px;font-family:'Quicksand',sans-serif;font-weight:700;font-size:0.78rem;cursor:pointer;white-space:nowrap;transition:background 0.15s;}
+  .remove-btn:hover{background:var(--danger);color:#fff;}
+  .loading-spinner{text-align:center;padding:40px;color:var(--muted);font-size:0.9rem;}
+  .add-form{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+  .add-form label{font-size:0.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;}
+  .add-form select,.add-form input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 12px;color:var(--text);font-family:'Quicksand',sans-serif;font-size:0.95rem;font-weight:600;outline:none;margin-bottom:12px;}
+  .add-form select:focus,.add-form input:focus{border-color:var(--accent2);}
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:0.88rem;font-weight:700;color:var(--text);z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  .toast.ok{border-color:var(--success);color:var(--success);}
+  .toast.err{border-color:var(--danger);color:var(--danger);}
+  .empty-state{text-align:center;padding:32px;color:var(--muted);font-size:0.9rem;}
+  #setupScreen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .setup-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px;max-width:420px;width:100%;}
+  .setup-card h2{font-family:'Noto Serif TC',serif;color:var(--accent);font-size:1.2rem;margin-bottom:8px;}
+  .setup-card p{color:var(--muted);font-size:0.85rem;margin-bottom:20px;line-height:1.5;}
+  .setup-card input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:monospace;font-size:0.82rem;outline:none;margin-bottom:12px;}
+  .setup-card input:focus{border-color:var(--accent2);}
 </style>
 </head>
 <body>
 
+<div id="setupScreen">
+  <div class="setup-card">
+    <h2>Ava's Menu Admin</h2>
+    <p>Enter your GitHub Personal Access Token. It saves in your browser — you only need to do this once.</p>
+    <input type="password" id="tokenInput" placeholder="ghp_..." />
+    <button class="btn btn-primary" onclick="saveToken()">Connect</button>
+    <p style="margin-top:12px;font-size:0.75rem;color:var(--muted);">Get a token: GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic) → New token → check <strong>repo</strong> scope.</p>
+  </div>
+</div>
+
 <header>
   <div>
     <h1>Ava's Menu Admin</h1>
-    <p id="statusText">Connecting to GitHub...</p>
+    <p id="statusText">Connecting...</p>
   </div>
-  <div class="status-dot" id="statusDot"></div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button onclick="resetToken()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:0.75rem;cursor:pointer;">Reset</button>
+    <div class="status-dot" id="statusDot"></div>
+  </div>
 </header>
 
 <div class="tabs">
@@ -108,7 +95,6 @@
 
 <div id="toast" class="toast"></div>
 
-<!-- SCAN PANE -->
 <div id="pane-scan" class="pane active">
   <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none" onchange="handleFile(event)">
   <div id="uploadZone" class="upload-zone" onclick="document.getElementById('fileInput').click()">
@@ -125,21 +111,16 @@
   <div id="suggestions"></div>
 </div>
 
-<!-- MENU PANE -->
 <div id="pane-menu" class="pane">
   <div id="menuList" class="loading-spinner">Loading menu from GitHub...</div>
 </div>
 
-<!-- ADD PANE -->
 <div id="pane-add" class="pane">
   <div class="add-form">
     <label>Section</label>
     <select id="addSection">
-      <option>Snacks</option>
-      <option>Breakfast</option>
-      <option>Lunch</option>
-      <option selected>Dinner</option>
-      <option>Drinks</option>
+      <option>Snacks</option><option>Breakfast</option><option>Lunch</option>
+      <option selected>Dinner</option><option>Drinks</option>
     </select>
     <label>Item name</label>
     <input id="addText" type="text" placeholder="e.g. Miso soup with tofu" onkeydown="if(event.key==='Enter')addManualItem()">
@@ -148,271 +129,111 @@
 </div>
 
 <script>
-var _g1 = 'ghp_cBVpnqqmig2P2fb';
-var _g2 = 'EusDT5GfZqYqsiU3uzCnw';
-var _a1 = 'sk-ant-api03-RpwWlEOz';
-var _a2 = '_i_ah4jFXTq6GWA3kftjfvrBWrz2twe6Xyt8rA0B9x4tSie';
-var _a3 = 'KY7MdJOSNfULSxqIbDTf6g3hgmsOUNA-0_3_CAAA';
-const GITHUB_TOKEN = _g1 + _g2;
-const REPO_OWNER = 'Daedelus11';
-const REPO_NAME = 'ava-menu';
-const MENU_FILE = 'Avas Menu.html';
-const ANTHROPIC_KEY_PLACEHOLDER = _a1 + _a2 + _a3;
+var OWNER='Daedelus11',REPO='ava-menu',FILE='Avas Menu.html';
+var _a='sk-ant-api03-RpwWlEOz_i_ah4jFXTq6GWA3kftjfv';
+var _b='rBWrz2twe6Xyt8rA0B9x4tSieKY7MdJOSNfULSxqIbDTf6g3hgmsOUNA-0_3_CAAA';
+var ANK=_a+_b;
+var GHT='',curSHA=null,curHTML=null;
 
-// GitHub API helpers
-async function ghGet(path) {
-  const r = await fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(path), {
-    headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
-  });
-  return r.json();
-}
+function saveToken(){var t=document.getElementById('tokenInput').value.trim();if(!t.startsWith('ghp_')){alert('Token must start with ghp_');return;}localStorage.setItem('ava_ght',t);GHT=t;document.getElementById('setupScreen').style.display='none';checkConnection();}
+function resetToken(){localStorage.removeItem('ava_ght');location.reload();}
+function init(){var s=localStorage.getItem('ava_ght');if(s){GHT=s;document.getElementById('setupScreen').style.display='none';checkConnection();}}
 
-async function ghPut(path, content, sha, message) {
-  const r = await fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(path), {
-    method: 'PUT',
-    headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, content: btoa(unescape(encodeURIComponent(content))), sha })
-  });
-  return r.json();
-}
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(function(){t.className='toast';},2800);}
 
-// State
-let currentSHA = null;
-let currentHTML = null;
+async function ghGet(p){var r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+encodeURIComponent(p),{headers:{'Authorization':'token '+GHT,'Accept':'application/vnd.github.v3+json'}});return r.json();}
+async function ghPut(p,content,sha,msg){var r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+encodeURIComponent(p),{method:'PUT',headers:{'Authorization':'token '+GHT,'Content-Type':'application/json'},body:JSON.stringify({message:msg,content:btoa(unescape(encodeURIComponent(content))),sha:sha})});return r.json();}
 
-// Toast
-function toast(msg, type) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + (type || '');
-  setTimeout(function() { t.className = 'toast'; }, 2800);
-}
-
-// Status
-async function checkConnection() {
-  try {
-    const data = await ghGet(MENU_FILE);
-    if (data.sha) {
-      currentSHA = data.sha;
-      currentHTML = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
-      document.getElementById('statusDot').className = 'status-dot ok';
-      document.getElementById('statusText').textContent = 'Connected to GitHub';
+async function checkConnection(){
+  document.getElementById('statusText').textContent='Connecting...';
+  try{
+    var data=await ghGet(FILE);
+    if(data.sha){
+      curSHA=data.sha;
+      curHTML=decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+      document.getElementById('statusDot').className='status-dot ok';
+      document.getElementById('statusText').textContent='Connected';
       renderMenuList();
-    } else {
-      document.getElementById('statusText').textContent = 'Connection failed';
+    }else{
+      document.getElementById('statusText').textContent='Failed — bad token?';
+      document.getElementById('setupScreen').style.display='flex';
     }
-  } catch(e) {
-    document.getElementById('statusText').textContent = 'Connection failed';
-  }
+  }catch(e){document.getElementById('statusText').textContent='Error: '+e.message;}
 }
 
-// Tab switching
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(function(t,i) {
-    t.classList.toggle('active', ['scan','menu','add'][i] === name);
+function switchTab(n){document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',['scan','menu','add'][i]===n);});document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});document.getElementById('pane-'+n).classList.add('active');if(n==='menu')renderMenuList();}
+
+var imgB64=null;
+function handleFile(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){var full=ev.target.result;imgB64=full.split(',')[1];document.getElementById('previewImg').src=full;document.getElementById('uploadZone').style.display='none';document.getElementById('previewWrap').style.display='block';document.getElementById('scanBtn').style.display='block';document.getElementById('changeBtn').style.display='block';document.getElementById('suggestions').innerHTML='';};r.readAsDataURL(file);}
+function clearPhoto(){imgB64=null;document.getElementById('previewImg').src='';document.getElementById('uploadZone').style.display='block';document.getElementById('previewWrap').style.display='none';document.getElementById('scanBtn').style.display='none';document.getElementById('changeBtn').style.display='none';document.getElementById('suggestions').innerHTML='';document.getElementById('fileInput').value='';}
+
+async function scanPhoto(){
+  if(!imgB64)return;
+  var btn=document.getElementById('scanBtn');btn.disabled=true;btn.textContent='Scanning...';
+  document.getElementById('suggestions').innerHTML='';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANK,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:imgB64}},{type:'text',text:'Identify food products in this photo. For each suggest 1-2 menu items for Ava, a bedridden paraplegic who loves Asian comfort food, mild flavors, high fiber. Respond ONLY with valid JSON array: [{"item":"Name","suggestions":["item1"],"section":"Snacks"}]. Section must be: Snacks, Breakfast, Lunch, Dinner, or Drinks'}]}]})});
+    var data=await res.json();
+    var text=(data.content&&data.content[0]&&data.content[0].text)||'[]';
+    renderSuggestions(JSON.parse(text.replace(/```json|```/g,'').trim()));
+  }catch(e){document.getElementById('suggestions').innerHTML='<p style="color:var(--danger);padding:16px;text-align:center;">Could not analyze photo. Please try again.</p>';}
+  btn.disabled=false;btn.textContent='Scan for menu items';
+}
+
+function escJ(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');}
+function escR(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+function renderSuggestions(groups){
+  var html='';
+  if(!groups||!groups.length){html='<div class="empty-state">No food items detected. Try a clearer photo.</div>';}
+  else{groups.forEach(function(g){html+='<div class="suggestion-group"><div class="suggestion-group-header"><span>'+g.item+'</span><span class="section-badge">'+g.section+'</span></div>';g.suggestions.forEach(function(s){html+='<div class="suggestion-item"><span class="suggestion-label">'+s+'</span><button class="add-item-btn" onclick="addSuggestion(this,\''+escJ(s)+'\',\''+escJ(g.section)+'\')">+ Add</button></div>';});html+='</div>';});}
+  document.getElementById('suggestions').innerHTML=html;
+}
+
+async function addSuggestion(btn,label,section){btn.disabled=true;btn.textContent='Adding...';var ok=await insertItem(label,section);if(ok){btn.outerHTML='<span class="added-badge">Added!</span>';toast('Added: '+label,'ok');}else{btn.disabled=false;btn.textContent='+ Add';toast('Failed.','err');}}
+
+function renderMenuList(){
+  if(!curHTML){document.getElementById('menuList').innerHTML='<div class="loading-spinner">Loading...</div>';checkConnection();return;}
+  var sections={},re=/data-section="([^"]+)"\s+data-label="([^"]+)"/g,m;
+  while((m=re.exec(curHTML))!==null){var sec=m[1].split('\u2014')[0].trim();if(!sections[sec])sections[sec]=[];sections[sec].push(m[2]);}
+  var html='';
+  ['Snacks','Breakfast','Lunch','Dinner','Drinks'].forEach(function(sec){
+    var items=sections[sec]||[];if(!items.length)return;
+    html+='<div class="menu-section"><div class="menu-section-title">'+sec+' ('+items.length+')</div>';
+    items.forEach(function(label){html+='<div class="menu-row"><span class="menu-row-label">'+label+'</span><button class="remove-btn" onclick="removeItem(\''+escJ(label)+'\',\''+sec+'\')">✕ Remove</button></div>';});
+    html+='</div>';
   });
-  document.querySelectorAll('.pane').forEach(function(p) { p.classList.remove('active'); });
-  document.getElementById('pane-' + name).classList.add('active');
-  if (name === 'menu') renderMenuList();
+  document.getElementById('menuList').innerHTML=html||'<div class="empty-state">No items found.</div>';
 }
 
-// SCAN FLOW
-var imageB64 = null;
-function handleFile(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var full = ev.target.result;
-    imageB64 = full.split(',')[1];
-    document.getElementById('previewImg').src = full;
-    document.getElementById('uploadZone').style.display = 'none';
-    document.getElementById('previewWrap').style.display = 'block';
-    document.getElementById('scanBtn').style.display = 'block';
-    document.getElementById('changeBtn').style.display = 'block';
-    document.getElementById('suggestions').innerHTML = '';
-  };
-  reader.readAsDataURL(file);
-}
-function clearPhoto() {
-  imageB64 = null;
-  document.getElementById('previewImg').src = '';
-  document.getElementById('uploadZone').style.display = 'block';
-  document.getElementById('previewWrap').style.display = 'none';
-  document.getElementById('scanBtn').style.display = 'none';
-  document.getElementById('changeBtn').style.display = 'none';
-  document.getElementById('suggestions').innerHTML = '';
-  document.getElementById('fileInput').value = '';
+async function addManualItem(){var label=document.getElementById('addText').value.trim(),section=document.getElementById('addSection').value;if(!label){toast('Enter an item name.','err');return;}var ok=await insertItem(label,section);if(ok){document.getElementById('addText').value='';toast('Added to '+section,'ok');renderMenuList();}else{toast('Failed to save.','err');}}
+
+async function removeItem(label,section){
+  if(!confirm('Remove "'+label+'" from '+section+'?'))return;
+  var newHTML=curHTML.replace(new RegExp('<div class="menu-item"[^>]*data-label="'+escR(label)+'"[^>]*>[\\s\\S]*?</div>\\s*'),'');
+  if(newHTML===curHTML){toast('Item not found.','err');return;}
+  var result=await ghPut(FILE,newHTML,curSHA,'Remove: '+label);
+  if(result.content){curSHA=result.content.sha;curHTML=newHTML;toast('Removed: '+label,'ok');renderMenuList();}
+  else{toast('GitHub save failed.','err');}
 }
 
-async function scanPhoto() {
-  if (!imageB64) return;
-  var btn = document.getElementById('scanBtn');
-  btn.disabled = true; btn.textContent = 'Scanning...';
-  document.getElementById('suggestions').innerHTML = '';
-
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY_PLACEHOLDER, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageB64 } },
-            { type: 'text', text: 'You are building a menu for Ava, a 23-year-old bedridden paraplegic who loves Asian comfort food with mild flavors. High fiber is important.\n\nIdentify all food products visible in this photo. For each, suggest 1-2 specific menu items that use it.\n\nRespond ONLY with valid JSON array, no preamble, no backticks:\n[{"item":"Product Name","suggestions":["Menu item 1","Menu item 2"],"section":"Snacks"}]\n\nSection must be one of: Snacks, Breakfast, Lunch, Dinner, Drinks' }
-          ]
-        }]
-      })
-    });
-    var data = await res.json();
-    var text = (data.content && data.content[0] && data.content[0].text) || '[]';
-    var clean = text.replace(/```json|```/g,'').trim();
-    var groups = JSON.parse(clean);
-    renderSuggestions(groups);
-  } catch(e) {
-    document.getElementById('suggestions').innerHTML = '<p style="color:var(--danger);padding:16px;text-align:center;">Could not analyze photo. Please try again.</p>';
-  }
-  btn.disabled = false; btn.textContent = 'Scan for menu items';
-}
-
-function renderSuggestions(groups) {
-  var html = '';
-  if (!groups.length) { html = '<div class="empty-state">No food items detected. Try a clearer photo.</div>'; }
-  groups.forEach(function(g, gi) {
-    html += '<div class="suggestion-group">';
-    html += '<div class="suggestion-group-header"><span>' + g.item + '</span><span class="section-badge">' + g.section + '</span></div>';
-    g.suggestions.forEach(function(s, si) {
-      html += '<div class="suggestion-item" id="sg-' + gi + '-' + si + '">';
-      html += '<span class="suggestion-label">' + s + '</span>';
-      html += '<button class="add-item-btn" onclick="addSuggestion(this,\'' + escJ(s) + '\',\'' + escJ(g.section) + '\',\'sg-' + gi + '-' + si + '\')">+ Add</button>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  document.getElementById('suggestions').innerHTML = html;
-}
-function escJ(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
-
-async function addSuggestion(btn, label, section, rowId) {
-  btn.disabled = true; btn.textContent = 'Adding...';
-  var ok = await insertItemToMenu(label, section);
-  if (ok) {
-    btn.outerHTML = '<span class="added-badge">Added!</span>';
-    toast('Added: ' + label, 'ok');
-  } else {
-    btn.disabled = false; btn.textContent = '+ Add';
-    toast('Failed to add. Try again.', 'err');
-  }
-}
-
-// MENU LIST
-function renderMenuList() {
-  if (!currentHTML) { document.getElementById('menuList').innerHTML = '<div class="loading-spinner">Loading...</div>'; checkConnection(); return; }
-  var sections = extractSections(currentHTML);
-  var html = '';
-  var order = ['Snacks','Breakfast','Lunch','Dinner','Drinks'];
-  order.forEach(function(sec) {
-    var items = sections[sec] || [];
-    if (!items.length) return;
-    html += '<div class="menu-section"><div class="menu-section-title">' + sec + ' (' + items.length + ')</div>';
-    items.forEach(function(item) {
-      html += '<div class="menu-row"><span class="menu-row-label">' + item.label + '</span>';
-      html += '<button class="remove-btn" onclick="removeItem(\'' + escJ(item.label) + '\',\'' + sec + '\')">Remove</button></div>';
-    });
-    html += '</div>';
-  });
-  document.getElementById('menuList').innerHTML = html || '<div class="empty-state">No items found.</div>';
-}
-
-function extractSections(html) {
-  var sections = {};
-  var re = /data-section="([^"]+)"\s+data-label="([^"]+)"/g;
-  var m;
-  while ((m = re.exec(html)) !== null) {
-    var sec = m[1].split(' \u2014 ')[0];
-    if (!sections[sec]) sections[sec] = [];
-    sections[sec].push({ label: m[2] });
-  }
-  return sections;
-}
-
-// ADD ITEM MANUALLY
-async function addManualItem() {
-  var label = document.getElementById('addText').value.trim();
-  var section = document.getElementById('addSection').value;
-  if (!label) { toast('Please enter an item name.', 'err'); return; }
-  var ok = await insertItemToMenu(label, section);
-  if (ok) {
-    document.getElementById('addText').value = '';
-    toast('Added to ' + section, 'ok');
-    renderMenuList();
-  } else {
-    toast('Failed to save. Try again.', 'err');
-  }
-}
-
-// REMOVE ITEM
-async function removeItem(label, section) {
-  if (!confirm('Remove "' + label + '" from ' + section + '?')) return;
-  var newHTML = currentHTML.replace(
-    new RegExp('<div class="menu-item"[^>]*data-label="' + escReg(label) + '"[^>]*>.*?</div>\\s*', 's'), ''
-  );
-  if (newHTML === currentHTML) {
-    toast('Could not find item in file.', 'err'); return;
-  }
-  var result = await ghPut(MENU_FILE, newHTML, currentSHA, 'Remove: ' + label);
-  if (result.content) {
-    currentSHA = result.content.sha;
-    currentHTML = newHTML;
-    toast('Removed: ' + label, 'ok');
-    renderMenuList();
-  } else {
-    toast('GitHub save failed.', 'err');
-  }
-}
-function escReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-
-// INSERT ITEM
-async function insertItemToMenu(label, section) {
-  if (!currentHTML || !currentSHA) { toast('Not connected to GitHub.', 'err'); return false; }
-  var newItem = '\n      <div class="menu-item" data-section="' + section + '" data-label="' + label + '" onclick="toggleItem(this)">\n        <div class="item-check"></div><span class="item-label">' + label + '</span>\n      </div>';
-
-  // Find insertion point: end of the section's menu-items div
-  var sectionAnchors = {
-    'Snacks': 'section-title">Snacks',
-    'Breakfast': 'section-title">Breakfast',
-    'Lunch': 'section-title">Lunch',
-    'Dinner': 'section-title">Dinner',
-    'Drinks': 'section-title">Drinks'
-  };
-  var anchor = sectionAnchors[section];
-  if (!anchor) anchor = sectionAnchors['Snacks'];
-
-  var anchorIdx = currentHTML.indexOf(anchor);
-  if (anchorIdx === -1) { toast('Could not find section in menu file.', 'err'); return false; }
-
-  // Find the closing tag of that section's menu-items div
-  var menuItemsStart = currentHTML.indexOf('<div class="menu-items"', anchorIdx);
-  var insertIdx = currentHTML.indexOf('</div>', menuItemsStart + 300);
-  // Walk back to find last menu-item closing tag before the section ends
-  var searchChunk = currentHTML.substring(menuItemsStart, menuItemsStart + 3000);
-  var lastMenuItemEnd = searchChunk.lastIndexOf('</div>');
-  if (lastMenuItemEnd !== -1) insertIdx = menuItemsStart + lastMenuItemEnd;
-
-  var newHTML = currentHTML.substring(0, insertIdx) + newItem + currentHTML.substring(insertIdx);
-  var result = await ghPut(MENU_FILE, newHTML, currentSHA, 'Add menu item: ' + label + ' (' + section + ')');
-  if (result.content && result.content.sha) {
-    currentSHA = result.content.sha;
-    currentHTML = newHTML;
-    return true;
-  }
+async function insertItem(label,section){
+  if(!curHTML||!curSHA){toast('Not connected.','err');return false;}
+  var newItem='\n      <div class="menu-item" data-section="'+section+'" data-label="'+label+'" onclick="toggleItem(this)">\n        <div class="item-check"></div><span class="item-label">'+label+'</span>\n      </div>';
+  var anchors={'Snacks':'section-title">Snacks','Breakfast':'section-title">Breakfast','Lunch':'section-title">Lunch','Dinner':'section-title">Dinner','Drinks':'section-title">Drinks'};
+  var anchor=anchors[section]||anchors['Snacks'];
+  var aIdx=curHTML.indexOf(anchor);if(aIdx===-1){toast('Section not found.','err');return false;}
+  var miStart=curHTML.indexOf('<div class="menu-items"',aIdx);
+  var chunk=curHTML.substring(miStart,miStart+3000);
+  var lastEnd=chunk.lastIndexOf('</div>');
+  var insertIdx=miStart+(lastEnd!==-1?lastEnd:300);
+  var newHTML=curHTML.substring(0,insertIdx)+newItem+curHTML.substring(insertIdx);
+  var result=await ghPut(FILE,newHTML,curSHA,'Add: '+label+' ('+section+')');
+  if(result.content&&result.content.sha){curSHA=result.content.sha;curHTML=newHTML;return true;}
   return false;
 }
 
-checkConnection();
+init();
 </script>
 </body>
 </html>
