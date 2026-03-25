@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)file:///C:/Users/User/Downloads/ava_menu_2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ava's Menu</title>
+<link href="./Avas Menu_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6ee;
+    --card: #fff9f2;
+    --accent1: #e8734a;
+    --accent2: #5b9e8f;
+    --accent3: #d4a843;
+    --text: #2d2417;
+    --muted: #9a8878;
+    --border: #e8d8c8;
+    --shadow: rgba(100,60,20,0.10);
+    --tag-bg: #fdeee4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #e8734a 0%, #d4a843 100%);
+    padding: 36px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '🍜 🍕 🥗 🍳 🥞 🍲';
+    position: absolute;
+    top: 6px; left: 0; right: 0;
+    font-size: 18px;
+    opacity: 0.25;
+    letter-spacing: 14px;
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 2.4rem;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    letter-spacing: 2px;
+  }
+  header p {
+    color: rgba(255,255,255,0.88);
+    font-size: 1rem;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* DATE */
+  .date-bar {
+    text-align: center;
+    padding: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* SECTION CARD */
+  .section-card {
+    background: var(--card);
+    border-radius: 18px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 4px 18px var(--shadow);
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section-card:nth-child(1) { animation-delay: 0.05s; }
+  .section-card:nth-child(2) { animation-delay: 0.12s; }
+  .section-card:nth-child(3) { animation-delay: 0.19s; }
+  .section-card:nth-child(4) { animation-delay: 0.26s; }
+  .section-card:nth-child(5) { animation-delay: 0.33s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px 12px;
+    border-bottom: 1.5px solid var(--border);
+    background: linear-gradient(90deg, rgba(232,115,74,0.07), transparent);
+  }
+  .section-icon { font-size: 1.5rem; }
+  .section-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent1);
+    letter-spacing: 1px;
+  }
+
+  /* MENU ITEMS */
+  .menu-items { padding: 10px 12px 14px; }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    user-select: none;
+    border: 1.5px solid transparent;
+  }
+  .menu-item:hover {
+    background: var(--tag-bg);
+    transform: translateX(3px);
+  }
+  .menu-item.selected {
+    background: #fff0e8;
+    border-color: var(--accent1);
+  }
+  .menu-item.selected .item-label { color: var(--accent1); font-weight: 700; }
+
+  .item-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    background: #fff;
+  }
+  .menu-item.selected .item-check {
+    background: var(--accent1);
+    border-color: var(--accent1);
+    color: #fff;
+  }
+  .item-label {
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+  .item-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-left: auto;
+    font-style: italic;
+  }
+
+  /* DROPDOWN GROUP */
+  .dropdown-group {
+    border-top: 1px dashed var(--border);
+    margin: 4px 10px 0;
+    border-radius: 0 0 10px 10px;
+  }
+  .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.97rem;
+    color: var(--accent2);
+    user-select: none;
+    border-radius: 10px;
+    transition: background 0.18s;
+  }
+  .dropdown-toggle:hover { background: #eef6f4; }
+  .dropdown-arrow {
+    margin-left: auto;
+    transition: transform 0.25s;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .dropdown-arrow.open { transform: rotate(180deg); }
+  .dropdown-items {
+    display: none;
+    padding: 0 0 6px 20px;
+  }
+  .dropdown-items.open { display: block; }
+
+  /* OTHER SECTION */
+  .other-section { padding: 14px 16px 16px; }
+  .other-section textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: #fff;
+    resize: none;
+    height: 72px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .other-section textarea:focus { border-color: var(--accent2); }
+  .other-section textarea::placeholder { color: var(--muted); }
+  .add-btn {
+    margin-top: 10px;
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+  }
+  .add-btn:hover { background: #4a8a7b; transform: scale(1.03); }
+
+  /* SAVED REQUESTS */
+  .saved-requests {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .saved-tag {
+    background: var(--tag-bg);
+    border: 1.5px solid var(--accent1);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: popIn 0.25s ease both;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .saved-tag button {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 0.9rem; padding: 0; line-height: 1;
+  }
+  .saved-tag button:hover { color: var(--accent1); }
+
+  /* SUBMIT / ORDER SUMMARY */
+  .submit-bar {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(135deg, #e8734a, #d4a843);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 -4px 20px rgba(100,60,20,0.15);
+    z-index: 100;
+  }
+  .submit-count {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .submit-btn {
+    background: #fff;
+    color: var(--accent1);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 26px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  }
+  .submit-btn:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(45,36,23,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+    animation: fadeUp 0.3s ease both;
+  }
+  .modal h2 {
+    font-family: 'Noto Serif TC', serif;
+    color: var(--accent1);
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  .modal-list { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+  .modal-list li {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.95rem; font-weight: 600;
+    padding: 7px 10px;
+    background: var(--tag-bg);
+    border-radius: 8px;
+    color: var(--text);
+  }
+  .modal-list li span { font-size: 1rem; }
+  .modal-section-label {
+    font-size: 0.75rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin: 12px 0 4px;
+  }
+  .modal-send {
+    width: 100%;
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .modal-send:hover { background: #4a8a7b; }
+  .modal-send:disabled { background: #aaa; cursor: not-allowed; }
+  .modal-close {
+    width: 100%;
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 9px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.18s;
+    margin-top: 10px;
+    display: block;
+  }
+  .modal-close:hover { background: var(--tag-bg); }
+  .send-status {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    min-height: 20px;
+  }
+  .send-status.success { color: var(--accent2); }
+  .send-status.error { color: #c0392b; }
+
+  .empty-msg {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    padding: 10px 0 4px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ava's Menu 🍱</h1>
+  <p>What would you like today?</p>
+</header>
+<div class="date-bar" id="dateBar">Monday, March 23, 2026</div>
+
+<div class="container">
+
+  <!-- SNACKS -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🍎</span>
+      <span class="section-title">Snacks</span>
+    </div>
+    <div class="menu-items" id="snacks">
+      <div class="menu-item" data-section="Snacks" data-label="Tillamook Cheddar + Saltine Crackers" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Tillamook Cheddar + Saltine Crackers</span>
+      </div>
+      <div class="menu-item" data-section="Snacks" data-label="WinCo Snacker Pack (Cheddar, Cranberries, Almonds)" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">WinCo Snacker Pack</span><span class="item-note">Cheddar · Cranberries · Almonds</span>
+      </div>
+      <div class="menu-item" data-section="Snacks" data-label="Roasted Red Pepper Hummus with Pita" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Roasted Red Pepper Hummus with Pita</span>
+      </div>
+      <div class="menu-item" data-section="Snacks" data-label="Laughing Cow Cheese with Rice Crisps" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Laughing Cow Cheese with Rice Crisps</span>
+      </div>
+      <div class="menu-item" data-section="Snacks" data-label="Fresh Fruit" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Fresh Fruit</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREAKFAST -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🍳</span>
+      <span class="section-title">Breakfast</span>
+    </div>
+    <div class="menu-items" id="breakfast">
+      <div class="menu-item" data-section="Breakfast" data-label="Avocado Toast with Turkey Bacon" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Avocado Toast with Turkey Bacon</span><span class="item-note">Ava's fave ⭐</span>
+      </div>
+      <div class="menu-item" data-section="Breakfast" data-label="Soft Scrambled Eggs with Pesto Toast" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Soft Scrambled Eggs with Pesto Toast</span>
+      </div>
+      <div class="menu-item" data-section="Breakfast" data-label="Congee (Rice Porridge)" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Congee (Rice Porridge)</span><span class="item-note">High fiber · Gentle</span>
+      </div>
+      <div class="menu-item" data-section="Breakfast" data-label="Annie&#39;s White Cheddar Mac with Soft-Boiled Egg" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Annie's White Cheddar Mac + Soft-Boiled Egg</span>
+      </div>
+      <div class="menu-item" data-section="Breakfast" data-label="Oatmeal with Dried Cranberries and Honey" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Oatmeal with Dried Cranberries &amp; Honey</span>
+      </div>
+      <div class="menu-item" data-section="Breakfast" data-label="Pancakes" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Pancakes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LUNCH -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🥗</span>
+      <span class="section-title">Lunch</span>
+    </div>
+    <div class="menu-items" id="lunch">
+      <div class="menu-item" data-section="Lunch" data-label="Annie Chun&#39;s Udon Bowl with Extra Veggies" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Annie Chun's Udon Bowl + Extra Veggies</span>
+      </div>
+      <div class="menu-item" data-section="Lunch" data-label="Pesto Pasta with Turkey Bacon Crumbles" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Pesto Pasta with Turkey Bacon Crumbles</span>
+      </div>
+      <div class="menu-item" data-section="Lunch" data-label="Chow Mein Noodles with Stir-Fry Vegetables" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Chow Mein Noodles with Stir-Fry Veggies</span>
+      </div>
+      <div class="menu-item" data-section="Lunch" data-label="Progresso Chicken Rice Soup with Saltines" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Chicken Rice Soup with Saltines</span>
+      </div>
+      <div class="menu-item" data-section="Lunch" data-label="Pita with Hummus, Turkey Bacon, and Cucumber" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Pita with Hummus, Turkey Bacon &amp; Cucumber</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DINNER -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🍽️</span>
+      <span class="section-title">Dinner</span>
+    </div>
+    <div class="menu-items" id="dinner">
+      <div class="menu-item" data-section="Dinner" data-label="Stir-Fry over Jasmine Rice with Mini Wontons" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Stir-Fry over Jasmine Rice + Mini Wontons</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="TJ&#39;s Butternut Squash Mac &amp; Cheese with Side Salad" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Butternut Squash Mac &amp; Cheese + Side Salad</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Basil Pesto Pasta with Chicken Nuggets" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Basil Pesto Pasta with Chicken Nuggets</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Pizza" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Pizza</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Spaghetti" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Spaghetti</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Sukiyaki" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Sukiyaki</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Take Out" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Take Out</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Hamburgers" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Hamburgers</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Steak and Rice" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Steak and Rice</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Chef&#39;s Salad" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Chef's Salad</span>
+      </div>
+      <div class="menu-item" data-section="Dinner" data-label="Grilled Cheese and Tomato Soup" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Grilled Cheese and Tomato Soup</span>
+      </div>
+
+      <!-- CHICKEN DROPDOWN -->
+      <div class="dropdown-group">
+        <div class="dropdown-toggle" onclick="toggleDropdown(&#39;chicken-list&#39;, this)">
+          🍗 Chicken
+          <span class="dropdown-arrow" id="chicken-arrow">▼</span>
+        </div>
+        <div class="dropdown-items" id="chicken-list">
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="3-Cup Chicken" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">3-Cup Chicken</span><span class="item-note">Taiwanese classic</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Bones (Braised)" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Chicken Bones (Braised)</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Tenders" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Chicken Tenders</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Grilled Chicken Breast" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Grilled Chicken Breast</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Thighs" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Chicken Thighs</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Legs" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Chicken Legs</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Teriyaki Chicken over Rice" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Teriyaki Chicken over Rice</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Stir-Fry with Vegetables" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Chicken Stir-Fry with Vegetables</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Crispy Sesame Chicken" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Crispy Sesame Chicken</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOUPS DROPDOWN -->
+      <div class="dropdown-group">
+        <div class="dropdown-toggle" onclick="toggleDropdown(&#39;soups-list&#39;, this)">
+          🍲 Soups
+          <span class="dropdown-arrow" id="soups-arrow">▼</span>
+        </div>
+        <div class="dropdown-items" id="soups-list">
+          <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Chicken Rice Soup" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Progresso Chicken Rice</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Beef Pot Roast Soup" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Progresso Beef Pot Roast</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Cheese Tortellini Soup" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Progresso Cheese Tortellini</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Tomato Basil Soup" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Progresso Tomato Basil</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSTANT NOODLES DROPDOWN -->
+      <div class="dropdown-group">
+        <div class="dropdown-toggle" onclick="toggleDropdown(&#39;noodles-list&#39;, this)">
+          🍜 Instant Noodles
+          <span class="dropdown-arrow" id="noodles-arrow">▼</span>
+        </div>
+        <div class="dropdown-items" id="noodles-list">
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Maruchan Yakisoba Teriyaki Beef" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Maruchan Yakisoba — Teriyaki Beef</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Nissin Cup Noodles Korean BBQ Stir Fry" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Nissin Cup Noodles — Korean BBQ Stir Fry</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Nissin Chow Mein — Teriyaki Beef" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Nissin Chow Mein — Teriyaki Beef</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Nissin Chow Mein — Teriyaki Chicken" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Nissin Chow Mein — Teriyaki Chicken</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Annie Chun&#39;s Udon Soup Bowl" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Annie Chun's Udon Soup Bowl</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Annie Chun&#39;s Teriyaki Noodle Bowl" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Annie Chun's Teriyaki Noodle Bowl</span>
+          </div>
+          <div class="menu-item" data-section="Dinner — Instant Noodles" data-label="Annie Chun&#39;s Kung Pao Noodle Bowl" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Annie Chun's Kung Pao Noodle Bowl</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRINKS -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🥤</span>
+      <span class="section-title">Drinks</span>
+    </div>
+    <div class="menu-items" id="drinks">
+      <div class="menu-item" data-section="Drinks" data-label="Cranberry Juice" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Cranberry Juice</span>
+      </div>
+      <div class="menu-item" data-section="Drinks" data-label="Orange Juice" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Orange Juice</span><span class="item-note">Seasonal</span>
+      </div>
+      <div class="menu-item" data-section="Drinks" data-label="Vitamin Water" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Vitamin Water</span>
+      </div>
+      <div class="menu-item" data-section="Drinks" data-label="Sprite" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Sprite</span>
+      </div>
+      <div class="menu-item" data-section="Drinks" data-label="Arizona Green Tea with Ginseng" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Arizona Green Tea with Ginseng</span><span class="item-note">Seasonal</span>
+      </div>
+      <div class="menu-item" data-section="Drinks" data-label="Ginger Ale" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Ginger Ale</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTHER -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-icon">✏️</span>
+      <span class="section-title">Other — Something Else?</span>
+    </div>
+    <div class="other-section">
+      <textarea id="otherInput" placeholder="Type anything you&#39;re craving... (e.g. miso soup, fried rice, ramen...)"></textarea>
+      <button class="add-btn" onclick="addOtherItem()">＋ Add to My Requests</button>
+      <div class="saved-requests" id="savedRequests"></div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<!-- STICKY SUBMIT -->
+<div class="submit-bar">
+  <span class="submit-count" id="submitCount">0 items selected</span>
+  <button class="submit-btn" onclick="openModal()">Send to Papa 💌</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2>Ava's Requests 🍱</h2>
+    <div id="modalContent"></div>
+    <div class="send-status" id="sendStatus"></div>
+    <button class="modal-send" id="modalSendBtn" onclick="sendToPapa()">📨 Confirm &amp; Send to Papa</button><button class="modal-close" onclick="closeModal()" style="margin-top:10px;">✕ Close</button>
+  </div>
+</div>
+
+<script src="./Avas Menu_files/email.min.js.download"></script>
+<script>
+  emailjs.init('TcgY_sFMOKEAdh_Mo');
+
+  // Date bar
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now = new Date();
+  document.getElementById('dateBar').textContent =
+    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+  // State
+  let selectedItems = []; // {section, label}
+  let otherItems = [];
+
+  function toggleItem(el) {
+    const label = el.dataset.label;
+    const section = el.dataset.section;
+    const idx = selectedItems.findIndex(i => i.label === label);
+    if (idx === -1) {
+      selectedItems.push({ section, label });
+      el.classList.add('selected');
+      el.querySelector('.item-check').textContent = '✓';
+    } else {
+      selectedItems.splice(idx, 1);
+      el.classList.remove('selected');
+      el.querySelector('.item-check').textContent = '';
+    }
+    updateCount();
+  }
+
+  function toggleDropdown(listId, toggleEl) {
+    const list = document.getElementById(listId);
+    const arrow = toggleEl.querySelector('.dropdown-arrow');
+    list.classList.toggle('open');
+    arrow.classList.toggle('open');
+  }
+
+  function addOtherItem() {
+    const input = document.getElementById('otherInput');
+    const val = input.value.trim();
+    if (!val) return;
+    otherItems.push(val);
+    renderOtherTags();
+    input.value = '';
+    updateCount();
+  }
+
+  document.getElementById('otherInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); addOtherItem(); }
+  });
+
+  function removeOtherItem(idx) {
+    otherItems.splice(idx, 1);
+    renderOtherTags();
+    updateCount();
+  }
+
+  function renderOtherTags() {
+    const container = document.getElementById('savedRequests');
+    container.innerHTML = '';
+    otherItems.forEach((item, i) => {
+      const tag = document.createElement('div');
+      tag.className = 'saved-tag';
+      tag.innerHTML = `✏️ ${item} <button onclick="removeOtherItem(${i})" title="Remove">✕</button>`;
+      container.appendChild(tag);
+    });
+  }
+
+  function updateCount() {
+    const total = selectedItems.length + otherItems.length;
+    document.getElementById('submitCount').textContent =
+      total === 0 ? 'Nothing selected yet' :
+      total === 1 ? '1 item selected' : `${total} items selected`;
+  }
+
+  function openModal() {
+    const total = selectedItems.length + otherItems.length;
+    const content = document.getElementById('modalContent');
+    if (total === 0) {
+      content.innerHTML = '<p class="empty-msg">No items selected yet. Pick something yummy! 😊</p>';
+    } else {
+      // Group by section
+      const groups = {};
+      selectedItems.forEach(({ section, label }) => {
+        if (!groups[section]) groups[section] = [];
+        groups[section].push(label);
+      });
+      let html = '';
+      Object.entries(groups).forEach(([section, items]) => {
+        html += `<div class="modal-section-label">${section}</div><ul class="modal-list">`;
+        items.forEach(label => {
+          html += `<li><span>•</span>${label}</li>`;
+        });
+        html += '</ul>';
+      });
+      if (otherItems.length > 0) {
+        html += `<div class="modal-section-label">Other Requests</div><ul class="modal-list">`;
+        otherItems.forEach(item => {
+          html += `<li><span>✏️</span>${item}</li>`;
+        });
+        html += '</ul>';
+      }
+      content.innerHTML = html;
+    }
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function sendToPapa() {
+    const total = selectedItems.length + otherItems.length;
+    if (total === 0) return;
+
+    const btn = document.getElementById('modalSendBtn');
+    const status = document.getElementById('sendStatus');
+    btn.disabled = true;
+    btn.textContent = '⏳ Sending...';
+    status.textContent = '';
+    status.className = 'send-status';
+
+    // Build message
+    const groups = {};
+    selectedItems.forEach(({ section, label }) => {
+      if (!groups[section]) groups[section] = [];
+      groups[section].push(label);
+    });
+    let msg = '';
+    Object.entries(groups).forEach(([section, items]) => {
+      msg += section.toUpperCase() + '\n';
+      items.forEach(l => { msg += '  • ' + l + '\n'; });
+      msg += '\n';
+    });
+    if (otherItems.length > 0) {
+      msg += 'OTHER REQUESTS\n';
+      otherItems.forEach(i => { msg += '  • ' + i + '\n'; });
+    }
+
+    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    emailjs.send('service_lxf6tz8', 'template_m1kj9yc', {
+      name: 'Ava',
+      time: time,
+      message: msg
+    }).then(() => {
+      status.textContent = '✅ Sent to Papa!';
+      status.className = 'send-status success';
+      btn.textContent = '✓ Sent!';
+      btn.style.background = 'var(--accent2)';
+    }).catch((err) => {
+      status.textContent = '❌ Something went wrong. Try again.';
+      status.className = 'send-status error';
+      btn.disabled = false;
+      btn.textContent = '📨 Confirm & Send to Papa';
+      console.error('EmailJS error:', err);
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    // Reset send button state
+    const btn = document.getElementById('modalSendBtn');
+    const status = document.getElementById('sendStatus');
+    if (btn) { btn.disabled = false; btn.textContent = '📨 Confirm & Send to Papa'; }
+    if (status) { status.textContent = ''; status.className = 'send-status'; }
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+</script>
+
+
+</body></html>
