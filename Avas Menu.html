@@ -397,7 +397,7 @@
       <span class="section-icon">🍎</span>
       <span class="section-title">Snacks</span>
     </div>
-    <div class="menu-items">
+    <div class="menu-items" id="section-Snacks">
       <div class="menu-item" data-section="Snacks" data-label="Tillamook Cheddar + Saltine Crackers" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Tillamook Cheddar + Saltine Crackers</span>
       </div>
@@ -464,7 +464,7 @@
       <div class="menu-item" data-section="Snacks" data-label="Rice Krispies Treats" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Rice Krispies Treats</span>
       </div>
-      <div class="menu-item" data-section="Snacks" data-label="TJ's Butternut Squash Mac &amp; Cheese Bites" onclick="toggleItem(this)">
+      <div class="menu-item" data-section="Snacks" data-label="TJ's Butternut Squash Mac and Cheese Bites" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">TJ's Butternut Squash Mac &amp; Cheese Bites</span><span class="item-note">Frozen · Air fry</span>
       </div>
     </div>
@@ -476,7 +476,7 @@
       <span class="section-icon">🍳</span>
       <span class="section-title">Breakfast</span>
     </div>
-    <div class="menu-items">
+    <div class="menu-items" id="section-Breakfast">
       <div class="menu-item" data-section="Breakfast" data-label="Avocado Toast with Turkey Bacon" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Avocado Toast with Turkey Bacon</span><span class="item-note">Ava's fave ⭐</span>
       </div>
@@ -522,7 +522,7 @@
       <span class="section-icon">🥗</span>
       <span class="section-title">Lunch</span>
     </div>
-    <div class="menu-items">
+    <div class="menu-items" id="section-Lunch">
       <div class="menu-item" data-section="Lunch" data-label="Annie Chun's Udon Bowl + Extra Veggies" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Annie Chun's Udon Bowl + Extra Veggies</span>
       </div>
@@ -565,7 +565,7 @@
       <span class="section-icon">🍽️</span>
       <span class="section-title">Dinner</span>
     </div>
-    <div class="menu-items">
+    <div class="menu-items" id="section-Dinner">
       <div class="menu-item" data-section="Dinner" data-label="Pesto Pasta with Roasted Cherry Tomatoes" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Pesto Pasta with Roasted Cherry Tomatoes</span><span class="item-note">+ Provolone</span>
       </div>
@@ -605,7 +605,8 @@
       <div class="menu-item" data-section="Dinner" data-label="Take Out" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Take Out</span>
       </div>
-      <span class="item-label">Hamburgers</span>
+      <div class="menu-item" data-section="Dinner" data-label="Hamburgers" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Hamburgers</span>
       </div>
       <div class="menu-item" data-section="Dinner" data-label="Steak and Rice" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Steak and Rice</span>
@@ -619,7 +620,8 @@
       <div class="menu-item" data-section="Dinner" data-label="Vegetable and Barley Soup" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Vegetable &amp; Barley Soup</span>
       </div>
-      <span class="item-label">Irish Stew</span>
+      <div class="menu-item" data-section="Dinner" data-label="Irish Stew" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Irish Stew</span>
       </div>
       <div class="menu-item" data-section="Dinner" data-label="Pho" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Pho</span>
@@ -641,7 +643,8 @@
           <div class="menu-item" data-section="Dinner — Chicken" data-label="3-Cup Chicken" onclick="toggleItem(this)">
             <div class="item-check"></div><span class="item-label">3-Cup Chicken</span><span class="item-note">Taiwanese classic</span>
           </div>
-          <span class="item-label">Chicken Bones (Braised)</span>
+          <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Bones Braised" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Chicken Bones (Braised)</span>
           </div>
           <div class="menu-item" data-section="Dinner — Chicken" data-label="Chicken Tenders" onclick="toggleItem(this)">
             <div class="item-check"></div><span class="item-label">Chicken Tenders</span>
@@ -683,7 +686,8 @@
           <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Beef Pot Roast Soup" onclick="toggleItem(this)">
             <div class="item-check"></div><span class="item-label">Progresso Beef Pot Roast</span>
           </div>
-          <span class="item-label">Progresso Cheese Tortellini</span>
+          <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Cheese Tortellini Soup" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Progresso Cheese Tortellini</span>
           </div>
           <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Tomato Basil Soup" onclick="toggleItem(this)">
             <div class="item-check"></div><span class="item-label">Progresso Tomato Basil</span>
@@ -697,7 +701,8 @@
           <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Minestrone Soup" onclick="toggleItem(this)">
             <div class="item-check"></div><span class="item-label">Progresso Minestrone</span>
           </div>
-          <span class="item-label">Progresso Chicken Pot Pie</span>
+          <div class="menu-item" data-section="Dinner — Soup" data-label="Progresso Chicken Pot Pie Soup" onclick="toggleItem(this)">
+            <div class="item-check"></div><span class="item-label">Progresso Chicken Pot Pie</span>
           </div>
           <div class="menu-item" data-section="Dinner — Soup" data-label="Chef Boyardee Beef Ravioli" onclick="toggleItem(this)">
             <div class="item-check"></div><span class="item-label">Chef Boyardee Beef Ravioli</span>
@@ -747,7 +752,7 @@
       <span class="section-icon">🥤</span>
       <span class="section-title">Drinks</span>
     </div>
-    <div class="menu-items">
+    <div class="menu-items" id="section-Drinks">
       <div class="menu-item" data-section="Drinks" data-label="Cranberry Juice" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Cranberry Juice</span>
       </div>
@@ -757,11 +762,14 @@
       <div class="menu-item" data-section="Drinks" data-label="Vitamin Water Pineapple Passionfruit" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Vitamin Water — Pineapple Passionfruit</span>
       </div>
-      <span class="item-label">Vitamin Water — Acai Blueberry Pomegranate</span>
+      <div class="menu-item" data-section="Drinks" data-label="Vitamin Water Acai Blueberry Pomegranate" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Vitamin Water — Acai Blueberry Pomegranate</span>
       </div>
-      <span class="item-label">Arizona Green Tea with Ginseng &amp; Honey</span>
+      <div class="menu-item" data-section="Drinks" data-label="Arizona Green Tea with Ginseng and Honey" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Arizona Green Tea with Ginseng &amp; Honey</span>
       </div>
-      <span class="item-label">Sprite</span>
+      <div class="menu-item" data-section="Drinks" data-label="Sprite" onclick="toggleItem(this)">
+        <div class="item-check"></div><span class="item-label">Sprite</span>
       </div>
       <div class="menu-item" data-section="Drinks" data-label="Ginger Ale" onclick="toggleItem(this)">
         <div class="item-check"></div><span class="item-label">Ginger Ale</span>

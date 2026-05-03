@@ -141,8 +141,17 @@ function init(){var s=localStorage.getItem('ava_ght');if(s){GHT=s;document.getEl
 
 function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(function(){t.className='toast';},2800);}
 
-async function ghGet(p){var r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+encodeURIComponent(p),{headers:{'Authorization':'token '+GHT,'Accept':'application/vnd.github.v3+json'}});return r.json();}
-async function ghPut(p,content,sha,msg){var r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+encodeURIComponent(p),{method:'PUT',headers:{'Authorization':'token '+GHT,'Content-Type':'application/json'},body:JSON.stringify({message:msg,content:btoa(unescape(encodeURIComponent(content))),sha:sha})});return r.json();}
+async function ghGet(p){
+  var r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+encodeURIComponent(p),
+    {headers:{'Authorization':'token '+GHT,'Accept':'application/vnd.github.v3+json'}});
+  return r.json();
+}
+async function ghPut(p,content,sha,msg){
+  var r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+encodeURIComponent(p),
+    {method:'PUT',headers:{'Authorization':'token '+GHT,'Content-Type':'application/json'},
+     body:JSON.stringify({message:msg,content:btoa(unescape(encodeURIComponent(content))),sha:sha})});
+  return r.json();
+}
 
 async function checkConnection(){
   document.getElementById('statusText').textContent='Connecting...';
@@ -161,7 +170,12 @@ async function checkConnection(){
   }catch(e){document.getElementById('statusText').textContent='Error: '+e.message;}
 }
 
-function switchTab(n){document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',['scan','menu','add'][i]===n);});document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});document.getElementById('pane-'+n).classList.add('active');if(n==='menu')renderMenuList();}
+function switchTab(n){
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',['scan','menu','add'][i]===n);});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('pane-'+n).classList.add('active');
+  if(n==='menu')renderMenuList();
+}
 
 var imgB64=null;
 function handleFile(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){var full=ev.target.result;imgB64=full.split(',')[1];document.getElementById('previewImg').src=full;document.getElementById('uploadZone').style.display='none';document.getElementById('previewWrap').style.display='block';document.getElementById('scanBtn').style.display='block';document.getElementById('changeBtn').style.display='block';document.getElementById('suggestions').innerHTML='';};r.readAsDataURL(file);}
@@ -172,7 +186,7 @@ async function scanPhoto(){
   var btn=document.getElementById('scanBtn');btn.disabled=true;btn.textContent='Scanning...';
   document.getElementById('suggestions').innerHTML='';
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANK,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:imgB64}},{type:'text',text:'Identify food products in this photo. For each suggest 1-2 menu items for Ava, a bedridden paraplegic who loves Asian comfort food, mild flavors, high fiber. Respond ONLY with valid JSON array: [{"item":"Name","suggestions":["item1"],"section":"Snacks"}]. Section must be: Snacks, Breakfast, Lunch, Dinner, or Drinks'}]}]})});
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANK,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:imgB64}},{type:'text',text:'Identify food products in this photo. For each suggest 1-2 menu items for Ava, a bedridden paraplegic who loves Asian comfort food, mild flavors, high fiber. Respond ONLY with valid JSON array: [{"item":"Name","suggestions":["item1"],"section":"Snacks"}]. Section must be: Snacks, Breakfast, Lunch, Dinner, or Drinks'}]}]})}); 
     var data=await res.json();
     var text=(data.content&&data.content[0]&&data.content[0].text)||'[]';
     renderSuggestions(JSON.parse(text.replace(/```json|```/g,'').trim()));
@@ -181,12 +195,11 @@ async function scanPhoto(){
 }
 
 function escJ(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');}
-function escR(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 
 function renderSuggestions(groups){
   var html='';
   if(!groups||!groups.length){html='<div class="empty-state">No food items detected. Try a clearer photo.</div>';}
-  else{groups.forEach(function(g){html+='<div class="suggestion-group"><div class="suggestion-group-header"><span>'+g.item+'</span><span class="section-badge">'+g.section+'</span></div>';g.suggestions.forEach(function(s){html+='<div class="suggestion-item"><span class="suggestion-label">'+s+'</span><button class="add-item-btn" onclick="addSuggestion(this,\''+escJ(s)+'\',\''+escJ(g.section)+'\')">+ Add</button></div>';});html+='</div>';});}
+  else{groups.forEach(function(g){html+='<div class="suggestion-group"><div class="suggestion-group-header"><span>'+g.item+'</span><span class="section-badge">'+g.section+'</span></div>';g.suggestions.forEach(function(s){html+='<div class="suggestion-item"><span class="suggestion-label">'+s+'</span><button class="add-item-btn" onclick="addSuggestion(this,\''+escJ(s)+'\',\''+escJ(g.section)+'\')">' + '+ Add</button></div>';});html+='</div>';});}
   document.getElementById('suggestions').innerHTML=html;
 }
 
@@ -195,41 +208,108 @@ async function addSuggestion(btn,label,section){btn.disabled=true;btn.textConten
 function renderMenuList(){
   if(!curHTML){document.getElementById('menuList').innerHTML='<div class="loading-spinner">Loading...</div>';checkConnection();return;}
   var sections={},re=/data-section="([^"]+)"\s+data-label="([^"]+)"/g,m;
-  while((m=re.exec(curHTML))!==null){var sec=m[1].split('\u2014')[0].trim();if(!sections[sec])sections[sec]=[];sections[sec].push(m[2]);}
+  while((m=re.exec(curHTML))!==null){
+    // Only show top-level sections in the edit list (not sub-dropdowns)
+    var sec=m[1];
+    var topSec=sec.split('\u2014')[0].trim();
+    if(['Snacks','Breakfast','Lunch','Dinner','Drinks'].indexOf(topSec)!==-1){
+      if(!sections[topSec])sections[topSec]=[];
+      sections[topSec].push({label:m[2],section:sec});
+    }
+  }
   var html='';
   ['Snacks','Breakfast','Lunch','Dinner','Drinks'].forEach(function(sec){
     var items=sections[sec]||[];if(!items.length)return;
     html+='<div class="menu-section"><div class="menu-section-title">'+sec+' ('+items.length+')</div>';
-    items.forEach(function(label){html+='<div class="menu-row"><span class="menu-row-label">'+label+'</span><button class="remove-btn" onclick="removeItem(\''+escJ(label)+'\',\''+sec+'\')">✕ Remove</button></div>';});
+    items.forEach(function(item){
+      html+='<div class="menu-row"><span class="menu-row-label">'+item.label+'</span>';
+      html+='<button class="remove-btn" onclick="removeItem(\'' + escJ(item.label) + '\',\'' + escJ(item.section) + '\')">✕ Remove</button></div>';
+    });
     html+='</div>';
   });
   document.getElementById('menuList').innerHTML=html||'<div class="empty-state">No items found.</div>';
 }
 
-async function addManualItem(){var label=document.getElementById('addText').value.trim(),section=document.getElementById('addSection').value;if(!label){toast('Enter an item name.','err');return;}var ok=await insertItem(label,section);if(ok){document.getElementById('addText').value='';toast('Added to '+section,'ok');renderMenuList();}else{toast('Failed to save.','err');}}
+async function addManualItem(){
+  var label=document.getElementById('addText').value.trim(),section=document.getElementById('addSection').value;
+  if(!label){toast('Enter an item name.','err');return;}
+  var ok=await insertItem(label,section);
+  if(ok){document.getElementById('addText').value='';toast('Added to '+section,'ok');renderMenuList();}
+  else{toast('Failed to save.','err');}
+}
 
+// Reliable remove: matches the exact data-label attribute and removes the whole menu-item div
 async function removeItem(label,section){
   if(!confirm('Remove "'+label+'" from '+section+'?'))return;
-  var newHTML=curHTML.replace(new RegExp('<div class="menu-item"[^>]*data-label="'+escR(label)+'"[^>]*>[\\s\\S]*?</div>\\s*'),'');
-  if(newHTML===curHTML){toast('Item not found.','err');return;}
+  // Fetch fresh SHA before every write
+  var fresh=await ghGet(FILE);
+  if(!fresh.sha){toast('Could not refresh file.','err');return;}
+  curSHA=fresh.sha;
+  curHTML=decodeURIComponent(escape(atob(fresh.content.replace(/\n/g,''))));
+
+  // Build a pattern that matches the exact menu-item block for this label
+  var escaped=label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/&amp;/g,'(?:&amp;|&)');
+  var re=new RegExp('<div class="menu-item"[^>]*data-label="'+escaped+'"[^>]*>[\\s\\S]*?</div>\\s*</div>\\s*');
+  var newHTML=curHTML.replace(re,'');
+  if(newHTML===curHTML){
+    // Fallback: try without trailing </div> in case formatting differs
+    re=new RegExp('<div class="menu-item"[^>]*data-label="'+escaped+'"[^>]*>[\\s\\S]*?</div>');
+    newHTML=curHTML.replace(re,'');
+  }
+  if(newHTML===curHTML){toast('Item not found in file.','err');return;}
   var result=await ghPut(FILE,newHTML,curSHA,'Remove: '+label);
-  if(result.content){curSHA=result.content.sha;curHTML=newHTML;toast('Removed: '+label,'ok');renderMenuList();}
+  if(result.content&&result.content.sha){curSHA=result.content.sha;curHTML=newHTML;toast('Removed: '+label,'ok');renderMenuList();}
   else{toast('GitHub save failed.','err');}
 }
 
+// Reliable insert: uses id="section-SECTIONNAME" marker placed directly on the menu-items div
 async function insertItem(label,section){
   if(!curHTML||!curSHA){toast('Not connected.','err');return false;}
+  // Fetch fresh SHA before every write
+  var fresh=await ghGet(FILE);
+  if(!fresh.sha){toast('Could not refresh file.','err');return false;}
+  curSHA=fresh.sha;
+  curHTML=decodeURIComponent(escape(atob(fresh.content.replace(/\n/g,''))));
+
   var newItem='\n      <div class="menu-item" data-section="'+section+'" data-label="'+label+'" onclick="toggleItem(this)">\n        <div class="item-check"></div><span class="item-label">'+label+'</span>\n      </div>';
-  var anchors={'Snacks':'section-title">Snacks','Breakfast':'section-title">Breakfast','Lunch':'section-title">Lunch','Dinner':'section-title">Dinner','Drinks':'section-title">Drinks'};
-  var anchor=anchors[section]||anchors['Snacks'];
-  var aIdx=curHTML.indexOf(anchor);if(aIdx===-1){toast('Section not found.','err');return false;}
-  var miStart=curHTML.indexOf('<div class="menu-items"',aIdx);
-  var chunk=curHTML.substring(miStart,miStart+3000);
-  var lastEnd=chunk.lastIndexOf('</div>');
-  var insertIdx=miStart+(lastEnd!==-1?lastEnd:300);
-  var newHTML=curHTML.substring(0,insertIdx)+newItem+curHTML.substring(insertIdx);
+
+  // Find the section div using the id marker e.g. id="section-Snacks"
+  var marker='id="section-'+section+'"';
+  var mIdx=curHTML.indexOf(marker);
+  if(mIdx===-1){toast('Section not found.','err');return false;}
+
+  // Find the closing </div> of the menu-items container by counting depth
+  var start=curHTML.indexOf('>',mIdx)+1;
+  var depth=1,i=start;
+  while(i<curHTML.length&&depth>0){
+    if(curHTML[i]==='<'){
+      if(curHTML.substring(i,i+2)==='</'){
+        depth--;if(depth===0)break;
+        i=curHTML.indexOf('>',i)+1;
+      } else if(curHTML.substring(i,i+4)==='<!--'){
+        i=curHTML.indexOf('-->',i)+3;
+      } else if(curHTML[i+1]==='!'){
+        i=curHTML.indexOf('>',i)+1;
+      } else {
+        // self-closing or opening
+        var gt=curHTML.indexOf('>',i);
+        if(curHTML[gt-1]==='/'){
+          i=gt+1;
+        } else {
+          depth++;
+          i=gt+1;
+        }
+      }
+    } else {
+      i++;
+    }
+  }
+
+  var insertIdx=i;
+  var newHTML=curHTML.substring(0,insertIdx)+newItem+'\n    '+curHTML.substring(insertIdx);
   var result=await ghPut(FILE,newHTML,curSHA,'Add: '+label+' ('+section+')');
   if(result.content&&result.content.sha){curSHA=result.content.sha;curHTML=newHTML;return true;}
+  toast('GitHub error: '+(result.message||'unknown'),'err');
   return false;
 }
 
