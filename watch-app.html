@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Should We Watch?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: rgba(255,255,255,0.07);
+    --accent: #e8c97d;
+    --accent2: #c77dff;
+    --text: #f0eeea;
+    --muted: #7a7880;
+    --mark: #e8c97d;
+    --ava: #c77dff;
+    --both: #7dd9c7;
+    --glow: rgba(232,201,125,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+  header {
+    padding: 1.5rem 3rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic; color: var(--accent); }
+  .logo span { color: var(--text); font-style: normal; font-weight: 400; }
+  .profiles { display: flex; gap: 0.5rem; }
+  .profile-pill { padding: 0.3rem 0.9rem; border-radius: 99px; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+  .profile-pill.mark { background: rgba(232,201,125,0.12); color: var(--mark); border-color: rgba(232,201,125,0.2); }
+  .profile-pill.ava { background: rgba(199,125,255,0.12); color: var(--ava); border-color: rgba(199,125,255,0.2); }
+  .profile-pill.both { background: rgba(125,217,199,0.12); color: var(--both); border-color: rgba(125,217,199,0.2); }
+  .profile-pill.active.mark { background: var(--mark); color: #0a0a0f; }
+  .profile-pill.active.ava { background: var(--ava); color: #0a0a0f; }
+  .profile-pill.active.both { background: var(--both); color: #0a0a0f; }
+  .nav-tabs { display: flex; padding: 0 3rem; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; }
+  .nav-tab { padding: 1rem 1.5rem; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  main { padding: 2.5rem 3rem; max-width: 1400px; margin: 0 auto; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; margin-bottom: 0.4rem; }
+  .section-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .mood-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 2rem; }
+  .mood-btn { padding: 0.9rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .mood-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .mood-btn.selected { background: rgba(232,201,125,0.1); border-color: var(--accent); color: var(--accent); }
+  .mood-btn .emoji { display: block; font-size: 1.4rem; margin-bottom: 0.3rem; }
+  .ai-controls { display: flex; gap: 1rem; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; }
+  .ai-input-group { flex: 1; min-width: 180px; }
+  .ai-input-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.5rem; }
+  .ai-select, .ai-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 0.7rem 1rem; outline: none; transition: border-color 0.2s; }
+  .ai-select:focus, .ai-input:focus { border-color: var(--accent); }
+  .ai-select option { background: var(--surface2); }
+  .btn-recommend { padding: 0.75rem 2rem; background: var(--accent); color: #0a0a0f; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn-recommend:hover { background: #f0d48a; transform: translateY(-1px); }
+  .btn-recommend:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .results-area { min-height: 200px; }
+  .loading-dots { display: flex; align-items: center; gap: 0.4rem; padding: 3rem 0; color: var(--muted); font-style: italic; }
+  .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
+  .rec-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+  .rec-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; transition: all 0.25s; position: relative; overflow: hidden; animation: fadeUp 0.4s ease both; }
+  .rec-card:hover { border-color: rgba(232,201,125,0.3); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .rec-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); opacity:0; transition:opacity 0.25s; }
+  .rec-card:hover::before { opacity:1; }
+  .rec-number { font-family:'Playfair Display',serif; font-size:3rem; color:var(--border); position:absolute; top:0.5rem; right:1rem; line-height:1; pointer-events:none; }
+  .rec-title { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:0.3rem; padding-right:2rem; }
+  .rec-meta { display:flex; gap:0.5rem; margin-bottom:0.8rem; flex-wrap:wrap; }
+  .rec-tag { padding:0.2rem 0.6rem; border-radius:4px; font-size:0.7rem; font-weight:500; text-transform:uppercase; letter-spacing:0.06em; }
+  .tag-service { background:rgba(255,255,255,0.06); color:var(--muted); }
+  .tag-why { background:rgba(232,201,125,0.1); color:var(--accent); }
+  .rec-reason { font-size:0.85rem; color:var(--muted); line-height:1.6; }
+  .rec-watchlist-btn { margin-top:1rem; padding:0.5rem 1rem; background:transparent; border:1px solid var(--border); border-radius:6px; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:0.75rem; cursor:pointer; transition:all 0.2s; width:100%; text-align:center; }
+  .rec-watchlist-btn:hover { border-color:var(--both); color:var(--both); }
+  .rec-watchlist-btn.added { border-color:var(--both); color:var(--both); background:rgba(125,217,199,0.08); }
+  .watchlist-empty { text-align:center; padding:4rem 2rem; color:var(--muted); }
+  .watchlist-empty .big-icon { font-size:3rem; margin-bottom:1rem; }
+  .watchlist-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
+  .watchlist-item { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.25rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; animation:fadeUp 0.3s ease both; }
+  .wi-title { font-family:'Playfair Display',serif; font-size:1rem; margin-bottom:0.3rem; }
+  .wi-meta { font-size:0.75rem; color:var(--muted); }
+  .wi-remove { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; padding:0.2rem; transition:color 0.2s; flex-shrink:0; }
+  .wi-remove:hover { color:#ff6b6b; }
+  .history-controls { display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center; }
+  .search-input { flex:1; min-width:200px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.9rem; padding:0.7rem 1rem; outline:none; transition:border-color 0.2s; }
+  .search-input:focus { border-color:var(--accent); }
+  .filter-select { background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.85rem; padding:0.7rem 1rem; outline:none; cursor:pointer; }
+  .filter-select option { background:var(--surface2); }
+  .history-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; margin-bottom:2rem; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.2rem; text-align:center; }
+  .stat-num { font-family:'Playfair Display',serif; font-size:2rem; color:var(--accent); display:block; }
+  .stat-label { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .history-list { display:grid; gap:0.5rem; max-height:60vh; overflow-y:auto; }
+  .history-item { display:flex; align-items:center; justify-content:space-between; padding:0.8rem 1.2rem; background:var(--surface); border:1px solid var(--border); border-radius:8px; transition:border-color 0.15s; gap:1rem; }
+  .history-item:hover { border-color:rgba(255,255,255,0.12); }
+  .hi-title { font-size:0.9rem; flex:1; }
+  .hi-source { font-size:0.65rem; font-weight:500; text-transform:uppercase; letter-spacing:0.06em; padding:0.15rem 0.5rem; border-radius:3px; white-space:nowrap; }
+  .source-netflix { background:rgba(229,9,20,0.15); color:#e50914; }
+  .source-prime { background:rgba(0,168,225,0.15); color:#00a8e1; }
+  .hi-who { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .who-mark { background:var(--mark); }
+  .who-ava { background:var(--ava); }
+  .insights-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .insight-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.5rem; }
+  .insight-card h3 { font-family:'Playfair Display',serif; font-size:1rem; font-weight:400; color:var(--accent); margin-bottom:1.2rem; }
+  .genre-bar { margin-bottom:0.8rem; }
+  .genre-bar-label { display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem; }
+  .genre-bar-track { height:4px; background:var(--surface2); border-radius:2px; overflow:hidden; }
+  .genre-bar-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .show-list { list-style:none; }
+  .show-list li { padding:0.5rem 0; border-bottom:1px solid var(--border); font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+  .show-list li:last-child { border-bottom:none; }
+  .show-count { font-size:0.75rem; color:var(--muted); }
+  .toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface2); border:1px solid var(--both); color:var(--both); padding:0.8rem 1.5rem; border-radius:8px; font-size:0.85rem; z-index:9998; transform:translateY(100px); opacity:0; transition:all 0.3s; }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:10000; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+  .modal-overlay.hidden { display:none; }
+  .modal-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2.5rem; max-width:420px; width:100%; }
+  .modal-box h2 { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:400; margin-bottom:0.5rem; color:var(--accent); }
+  .modal-box p { font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:1.5rem; }
+  .modal-box input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.9rem; padding:0.8rem 1rem; outline:none; margin-bottom:1rem; transition:border-color 0.2s; }
+  .modal-box input:focus { border-color:var(--accent); }
+  .modal-box .btn-save { width:100%; padding:0.8rem; background:var(--accent); color:#0a0a0f; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; cursor:pointer; }
+  .modal-box .btn-save:hover { background:#f0d48a; }
+  .modal-note { font-size:0.75rem; color:var(--muted); margin-top:1rem; text-align:center; }
+  .key-status { font-size:0.75rem; padding:0.3rem 0.8rem; border-radius:99px; cursor:pointer; border:1px solid var(--border); color:var(--muted); background:transparent; transition:all 0.2s; }
+  .key-status.set { border-color:rgba(125,217,199,0.4); color:var(--both); }
+  @media(max-width:768px) { header{padding:1rem 1.5rem;} .nav-tabs{padding:0 1rem;} main{padding:1.5rem;} .rec-cards{grid-template-columns:1fr;} .mood-grid{grid-template-columns:repeat(3,1fr);} .insights-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay hidden" id="keyModal">
+  <div class="modal-box">
+    <h2>API Key Required</h2>
+    <p>This app uses Claude AI to generate personalized recommendations. Paste your Anthropic API key below — it's stored only in your browser's localStorage and never sent anywhere except directly to Anthropic.</p>
+    <input type="password" id="keyInput" placeholder="sk-ant-api03-..." />
+    <button class="btn-save" onclick="saveKey()">Save &amp; Continue</button>
+    <div class="modal-note">Get a key at <a href="https://console.anthropic.com" style="color:var(--accent)" target="_blank">console.anthropic.com</a></div>
+  </div>
+</div>
+
+<header>
+  <div class="logo"><span>what should</span> we watch?</div>
+  <div style="display:flex;align-items:center;gap:0.75rem">
+    <button class="key-status" id="keyStatusBtn" onclick="showKeyModal()">⚙ API Key</button>
+    <div class="profiles">
+      <div class="profile-pill mark active" onclick="setProfile('mark')">Mark</div>
+      <div class="profile-pill ava" onclick="setProfile('ava')">Ava</div>
+      <div class="profile-pill both" onclick="setProfile('both')">Both</div>
+    </div>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showPanel('recommend')">✦ Recommend</div>
+  <div class="nav-tab" onclick="showPanel('watchlist')">Watchlist</div>
+  <div class="nav-tab" onclick="showPanel('history')">History</div>
+  <div class="nav-tab" onclick="showPanel('insights')">Insights</div>
+</div>
+
+<main>
+  <div class="panel active" id="panel-recommend">
+    <div class="section-title">Find something to watch</div>
+    <div class="section-sub">Pick a mood, set filters, and get personalized picks based on your history.</div>
+    <div class="mood-grid" id="moodGrid"></div>
+    <div class="ai-controls">
+      <div class="ai-input-group"><label>Type</label>
+        <select class="ai-select" id="filterType"><option value="any">Any</option><option value="movie">Movies only</option><option value="series">Series only</option></select>
+      </div>
+      <div class="ai-input-group"><label>Service</label>
+        <select class="ai-select" id="filterService"><option value="any">Any service</option><option>Netflix</option><option>Prime Video</option><option>Max</option><option>Hulu</option><option>Paramount+</option><option>Apple TV+</option></select>
+      </div>
+      <div class="ai-input-group" style="flex:2"><label>Tell me more (optional)</label>
+        <input class="ai-input" id="freeText" placeholder="e.g. something we can watch together, not too heavy..." />
+      </div>
+      <button class="btn-recommend" id="btnRecommend" onclick="getRecommendations()">Get Picks →</button>
+    </div>
+    <div class="results-area" id="resultsArea"><div style="color:var(--muted);font-style:italic;padding:2rem 0">Select a mood above and hit Get Picks to start.</div></div>
+  </div>
+
+  <div class="panel" id="panel-watchlist">
+    <div class="section-title">Our Watchlist</div>
+    <div class="section-sub">Titles you want to watch together.</div>
+    <div id="watchlistContent"></div>
+  </div>
+
+  <div class="panel" id="panel-history">
+    <div class="section-title">Watch History</div>
+    <div class="section-sub">Everything watched across Netflix and Prime Video.</div>
+    <div class="history-stats" id="historyStats"></div>
+    <div class="history-controls">
+      <input class="search-input" id="historySearch" placeholder="Search titles..." oninput="filterHistory()" />
+      <select class="filter-select" id="historyProfile" onchange="filterHistory()"><option value="all">All profiles</option><option value="mark">Mark only</option><option value="ava">Ava only</option></select>
+      <select class="filter-select" id="historySource" onchange="filterHistory()"><option value="all">All services</option><option value="netflix">Netflix</option><option value="prime">Prime Video</option></select>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <div class="panel" id="panel-insights">
+    <div class="section-title">Viewing Insights</div>
+    <div class="section-sub">Patterns and preferences from your combined watch history.</div>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MARK_NETFLIX=["Better Call Saul","Casino","After Life","Nuremberg","The Staircase","Nate Bargatze: The Tennessee Kid","The Pledge","Ricky Gervais: Mortality","Skyscraper Live","To Catch a Killer","The Covenant","Luther: The Fallen Sun","Wake Up Dead Man","Dave Chappelle","A HOUSE OF DYNAMITE","Don't Say a Word","Reptile","Ballad of a Small Player","Black Rabbit","Saturday Night","All Quiet on the Western Front","1917","Inglourious Basterds","12 Strong","Inside Man","Nate Bargatze: The Greatest Average American","Your Honor","Ron White","Jimmy Carr","Adolescence","Blown Away","Alone Australia","Trial by Fire","Dune","Chef's Table","Somebody Feed Phil","Black Hawk Down","The Town","Dune: Part Two","Havoc","Carry-On","The Gentlemen","Collateral","Top Chef","Black Mass","Woman of the Hour","Eric","Baby Reindeer","Worst Roommate Ever","Dexter","Extraction","Molly's Game","Fury","Maestro","Whiplash","Leave the World Behind","Lone Survivor","The Killer","13 Hours","Painkiller"];
+const AVA_NETFLIX=["BoJack Horseman","The Midnight Gospel","How to Train Your Dragon","Solar Opposites","Fifty Shades","Human Resources","Madagascar","Love Death & Robots","Maya and the Three","Black Mirror","BEASTARS","Dark","Arcane","Demon Slayer","Peaky Blinders: The Immortal Man","Jurassic World","Spider-Man: Into the Spider-Verse","Zombieland","Blue Lock","Entergalactic","The Rain","Maboroshi","The Bad Guys","The Tearsmith","Rio","Hilda","Disenchantment","Life on Our Planet","Leon: The Professional","Rebel Ridge","Supacell","Parasyte: The Grey","Castlevania","Kill Bill","Hit Man","Godzilla Minus One","The Conjuring","Extraction","Venom","28 Years Later","To All the Boys","Free Bert","Big Mouth","Frieren","Kakegurui","Ultraman","Interview with the Vampire","Terminator 2","World War Z","Under Paris","Bird Box Barcelona","Sonic the Hedgehog"];
+const MARK_PRIME=["The Boys Season 5","Crime 101","Us","Nobody","Schitt's Creek","Sisu","Hedda","After The Hunt","Draft Day","Frasier","The Hunt for Red October","Black Bag","A Gentleman in Moscow","The Accountant 2","Gladiator II","Jack Reacher","Saving Private Ryan","Master And Commander","The Thin Red Line","Blitz"];
+const historyData=[];
+MARK_NETFLIX.forEach(t=>historyData.push({title:t,who:'mark',source:'netflix'}));
+AVA_NETFLIX.forEach(t=>historyData.push({title:t,who:'ava',source:'netflix'}));
+MARK_PRIME.forEach(t=>historyData.push({title:t,who:'mark',source:'prime'}));
+let currentProfile='mark',selectedMoods=[],watchlist=JSON.parse(localStorage.getItem('wswwatchlist')||'[]');
+const MOODS=[{e:'😂',l:'Laugh'},{e:'😱',l:'Thriller'},{e:'🧠',l:'Mind-Bending'},{e:'❤️',l:'Romance'},{e:'💥',l:'Action'},{e:'😢',l:'Emotional'},{e:'👻',l:'Horror'},{e:'🌍',l:'Documentary'},{e:'✨',l:'Fantasy'},{e:'🔍',l:'Mystery'},{e:'🎭',l:'Drama'},{e:'🍿',l:'Easy Watch'}];
+function renderMoods(){document.getElementById('moodGrid').innerHTML=MOODS.map(m=>`<div class="mood-btn" onclick="toggleMood('${m.l}',this)"><span class="emoji">${m.e}</span>${m.l}</div>`).join('');}
+function toggleMood(l,el){if(selectedMoods.includes(l)){selectedMoods=selectedMoods.filter(m=>m!==l);el.classList.remove('selected');}else{selectedMoods.push(l);el.classList.add('selected');}}
+function setProfile(p){currentProfile=p;document.querySelectorAll('.profile-pill').forEach(el=>el.classList.remove('active'));document.querySelector('.profile-pill.'+p).classList.add('active');}
+function showPanel(name){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('panel-'+name).classList.add('active');event.target.classList.add('active');if(name==='history')renderHistory();if(name==='watchlist')renderWatchlist();if(name==='insights')renderInsights();}
+async function getRecommendations(){
+  const btn=document.getElementById('btnRecommend');
+  const area=document.getElementById('resultsArea');
+  const type=document.getElementById('filterType').value;
+  const service=document.getElementById('filterService').value;
+  const freeText=document.getElementById('freeText').value;
+  if(!selectedMoods.length&&!freeText){area.innerHTML='<div style="color:#ff6b6b;padding:1rem 0;font-size:0.9rem">Pick at least one mood or describe what you want.</div>';return;}
+  const apiKey=getApiKey();
+  if(!apiKey){showKeyModal();return;}
+  btn.disabled=true;
+  area.innerHTML='<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.5rem">Finding the perfect picks…</span></div>';
+  const profileLabel=currentProfile==='both'?'Mark and Ava':currentProfile==='mark'?'Mark':'Ava';
+  let histContext='';
+  if(currentProfile==='mark'||currentProfile==='both') histContext+=`Mark has watched: ${MARK_NETFLIX.slice(0,30).join(', ')}, and on Prime Video: ${MARK_PRIME.join(', ')}. `;
+  if(currentProfile==='ava'||currentProfile==='both') histContext+=`Ava has watched: ${AVA_NETFLIX.slice(0,30).join(', ')}. `;
+  const prompt=`You are a film and TV recommendation engine. Recommend exactly 6 titles for ${profileLabel}.
+
+Watch history:
+${histContext}
+Mood: ${selectedMoods.join(', ')||'any'}
+Type: ${type}
+Service preference: ${service}
+Extra context: ${freeText||'none'}
+
+Rules: Never recommend anything already in the watch history. Be specific about WHY based on their actual watched titles.
+
+Respond ONLY with a JSON array, no markdown:
+[{"title":"","year":"","type":"Movie or Series","service":"","reason":"one specific sentence why","matchScore":""}]`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-cors':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await resp.json();
+    if(data.error){throw new Error(data.error.message);}
+    const text=data.content?.[0]?.text||'[]';
+    const recs=JSON.parse(text.replace(/```json|```/g,'').trim());
+    renderRecs(recs);
+  }catch(e){
+    area.innerHTML=`<div style="color:#ff6b6b;padding:1rem 0">${e.message||'Something went wrong. Check your API key and try again.'}</div>`;
+  }
+  btn.disabled=false;
+}
+function renderRecs(recs){
+  const area=document.getElementById('resultsArea');
+  if(!recs.length){area.innerHTML='<div style="color:var(--muted)">No results. Try different filters.</div>';return;}
+  area.innerHTML='<div class="rec-cards">'+recs.map((r,i)=>{
+    const inList=watchlist.some(w=>w.title===r.title);
+    return `<div class="rec-card" style="animation-delay:${i*0.08}s"><div class="rec-number">${String(i+1).padStart(2,'0')}</div><div class="rec-title">${r.title}</div><div class="rec-meta"><span class="rec-tag tag-service">${r.year} · ${r.type}</span><span class="rec-tag tag-why">${r.service}</span>${r.matchScore?`<span class="rec-tag tag-why">${r.matchScore}</span>`:''}</div><div class="rec-reason">${r.reason}</div><button class="rec-watchlist-btn ${inList?'added':''}" onclick="toggleWatchlist('${r.title.replace(/'/g,"\\'").replace(/"/g,'&quot;')}','${r.service}','${r.type}',this)">${inList?'✓ In watchlist':'+ Add to watchlist'}</button></div>`;
+  }).join('')+'</div>';
+}
+function toggleWatchlist(title,service,type,btn){
+  const idx=watchlist.findIndex(w=>w.title===title);
+  if(idx>=0){watchlist.splice(idx,1);btn.classList.remove('added');btn.textContent='+ Add to watchlist';showToast('Removed from watchlist');}
+  else{watchlist.push({title,service,type,added:new Date().toLocaleDateString()});btn.classList.add('added');btn.textContent='✓ In watchlist';showToast('Added to watchlist!');}
+  localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));
+}
+function renderWatchlist(){
+  const el=document.getElementById('watchlistContent');
+  if(!watchlist.length){el.innerHTML='<div class="watchlist-empty"><div class="big-icon">🎬</div><div>Your watchlist is empty.</div><div style="font-size:0.8rem;margin-top:0.5rem;color:var(--muted)">Get recommendations and add titles here.</div></div>';return;}
+  el.innerHTML='<div class="watchlist-grid">'+watchlist.map((w,i)=>`<div class="watchlist-item"><div><div class="wi-title">${w.title}</div><div class="wi-meta">${w.service} · ${w.type} · Added ${w.added}</div></div><button class="wi-remove" onclick="removeFromWatchlist(${i})">✕</button></div>`).join('')+'</div>';
+}
+function removeFromWatchlist(i){watchlist.splice(i,1);localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));renderWatchlist();showToast('Removed');}
+function renderHistory(){
+  const mc=historyData.filter(h=>h.who==='mark').length;
+  const ac=historyData.filter(h=>h.who==='ava').length;
+  const pc=historyData.filter(h=>h.source==='prime').length;
+  document.getElementById('historyStats').innerHTML=`<div class="stat-card"><span class="stat-num">${historyData.length}</span><span class="stat-label">Total</span></div><div class="stat-card"><span class="stat-num" style="color:var(--mark)">${mc}</span><span class="stat-label">Mark</span></div><div class="stat-card"><span class="stat-num" style="color:var(--ava)">${ac}</span><span class="stat-label">Ava</span></div><div class="stat-card"><span class="stat-num" style="color:#00a8e1">${pc}</span><span class="stat-label">Prime Video</span></div>`;
+  filterHistory();
+}
+function filterHistory(){
+  const s=(document.getElementById('historySearch')?.value||'').toLowerCase();
+  const p=document.getElementById('historyProfile')?.value||'all';
+  const src=document.getElementById('historySource')?.value||'all';
+  const f=historyData.filter(h=>{if(p!=='all'&&h.who!==p)return false;if(src!=='all'&&h.source!==src)return false;if(s&&!h.title.toLowerCase().includes(s))return false;return true;}).slice(0,200);
+  document.getElementById('historyList').innerHTML=f.map(h=>`<div class="history-item"><div class="hi-who ${h.who==='mark'?'who-mark':'who-ava'}"></div><div class="hi-title">${h.title}</div><span class="hi-source source-${h.source}">${h.source==='netflix'?'Netflix':'Prime'}</span></div>`).join('');
+}
+function renderInsights(){
+  const ms=[{n:'Crime / Thriller',c:22},{n:'War / Military',c:14},{n:'Comedy Specials',c:13},{n:'Documentary',c:10},{n:'Action',c:9},{n:'Drama',c:8}];
+  const as=[{n:'Anime',c:45},{n:'Animation',c:30},{n:'Sci-Fi / Drama',c:22},{n:'Horror',c:17},{n:'Romance',c:12},{n:'Documentary',c:8}];
+  const mm=Math.max(...ms.map(x=>x.c)),am=Math.max(...as.map(x=>x.c));
+  document.getElementById('insightsGrid').innerHTML=`
+    <div class="insight-card"><h3>📺 Mark's Top Genres</h3>${ms.map(g=>`<div class="genre-bar"><div class="genre-bar-label"><span>${g.n}</span><span>${g.c}</span></div><div class="genre-bar-track"><div class="genre-bar-fill" style="width:${Math.round(g.c/mm*100)}%"></div></div></div>`).join('')}</div>
+    <div class="insight-card"><h3>✨ Ava's Top Genres</h3>${as.map(g=>`<div class="genre-bar"><div class="genre-bar-label"><span>${g.n}</span><span>${g.c}</span></div><div class="genre-bar-track"><div class="genre-bar-fill" style="width:${Math.round(g.c/am*100)}%;background:linear-gradient(90deg,var(--ava),var(--accent2))"></div></div></div>`).join('')}</div>
+    <div class="insight-card"><h3>🏆 Mark's Top Series</h3><ul class="show-list">${["Better Call Saul","Your Honor","Baby Reindeer","Adolescence","The Boys S5"].map((s,i)=>`<li><span>${i+1}. ${s}</span></li>`).join('')}</ul></div>
+    <div class="insight-card"><h3>🏆 Ava's Top Series</h3><ul class="show-list">${["BoJack Horseman","Dark","BEASTARS","Arcane","Demon Slayer"].map((s,i)=>`<li><span>${i+1}. ${s}</span></li>`).join('')}</ul></div>
+    <div class="insight-card" style="grid-column:1/-1"><h3>🤝 Where Your Tastes Overlap</h3><ul class="show-list">${["High-stakes crime & prestige drama","Visually stunning action films","Dark psychological thrillers","Character-driven moral complexity","Grounded stories with real stakes"].map(s=>`<li><span>${s}</span><span class="show-count" style="color:var(--both)">Both</span></li>`).join('')}</ul><div style="margin-top:1rem;font-size:0.8rem;color:var(--muted)">Mark loves grounded crime dramas and war films. Ava loves emotionally complex animation and anime. The sweet spot: prestige drama with rich characters and moral weight.</div></div>`;
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function getApiKey(){return(localStorage.getItem('wswk1')||'')+(localStorage.getItem('wswk2')||'')+(localStorage.getItem('wswk3')||'');}
+function saveKey(){
+  const val=document.getElementById('keyInput').value.trim();
+  if(!val.startsWith('sk-ant')){alert("That doesn't look like a valid Anthropic API key.");return;}
+  const t=Math.floor(val.length/3);
+  localStorage.setItem('wswk1',val.substring(0,t));
+  localStorage.setItem('wswk2',val.substring(t,t*2));
+  localStorage.setItem('wswk3',val.substring(t*2));
+  document.getElementById('keyModal').classList.add('hidden');
+  document.getElementById('keyInput').value='';
+  updateKeyStatus();
+  showToast('API key saved!');
+}
+function showKeyModal(){document.getElementById('keyModal').classList.remove('hidden');setTimeout(()=>document.getElementById('keyInput').focus(),100);}
+function updateKeyStatus(){const btn=document.getElementById('keyStatusBtn');if(getApiKey()){btn.classList.add('set');btn.textContent='✓ API Key set';}else{btn.classList.remove('set');btn.textContent='⚙ Set API Key';}}
+renderMoods();renderHistory();updateKeyStatus();
+if(!getApiKey())showKeyModal();
+</script>
+</body>
+</html>
