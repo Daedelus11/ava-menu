@@ -7,13 +7,247 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f; --surface: #111118; --surface2: #1a1a24;
-    --border: rgba(255,255,255,0.07); --accent: #e8c97d; --accent2: #c77dff;
-    --text: #f0eeea; --muted: #7a7880; --mark: #e8c97d; --ava: #c77dff; --both: #7dd9c7;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-weight:300; min-height:100vh; overflow-x:hidden; }
-  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:9999; opacity:0.4; }
-  header { padding:1.5rem 3rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:rgba(10
+  :root{--bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:rgba(255,255,255,0.07);--accent:#e8c97d;--accent2:#c77dff;--text:#f0eeea;--muted:#7a7880;--mark:#e8c97d;--ava:#c77dff;--both:#7dd9c7}
+  *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4}
+  header{padding:1.5rem 3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);z-index:100}
+  .logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-style:italic;color:var(--accent)}
+  .logo span{color:var(--text);font-style:normal;font-weight:400}
+  .profiles{display:flex;gap:.5rem}
+  .pp{padding:.3rem .9rem;border-radius:99px;font-size:.75rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:1px solid transparent}
+  .pp.mark{background:rgba(232,201,125,.12);color:var(--mark);border-color:rgba(232,201,125,.2)}
+  .pp.ava{background:rgba(199,125,255,.12);color:var(--ava);border-color:rgba(199,125,255,.2)}
+  .pp.both{background:rgba(125,217,199,.12);color:var(--both);border-color:rgba(125,217,199,.2)}
+  .pp.active.mark{background:var(--mark);color:#0a0a0f}
+  .pp.active.ava{background:var(--ava);color:#0a0a0f}
+  .pp.active.both{background:var(--both);color:#0a0a0f}
+  .nav-tabs{display:flex;padding:0 3rem;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto}
+  .nav-tab{padding:1rem 1.5rem;font-size:.8rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+  .nav-tab:hover{color:var(--text)}.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
+  .section-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:400;margin-bottom:.4rem}
+  .section-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+  .panel{display:none}.panel.active{display:block}
+  .mood-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;margin-bottom:2rem}
+  .mood-btn{padding:.9rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:center}
+  .mood-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+  .mood-btn.selected{background:rgba(232,201,125,.1);border-color:var(--accent);color:var(--accent)}
+  .mood-btn .emoji{display:block;font-size:1.4rem;margin-bottom:.3rem}
+  .ai-controls{display:flex;gap:1rem;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap}
+  .ai-input-group{flex:1;min-width:180px}
+  .ai-input-group label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.5rem}
+  .ai-select,.ai-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:.7rem 1rem;outline:none;transition:border-color .2s}
+  .ai-select:focus,.ai-input:focus{border-color:var(--accent)}.ai-select option{background:var(--surface2)}
+  .btn-recommend{padding:.75rem 2rem;background:var(--accent);color:#0a0a0f;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .btn-recommend:hover{background:#f0d48a;transform:translateY(-1px)}.btn-recommend:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .results-area{min-height:200px}
+  .loading-dots{display:flex;align-items:center;gap:.4rem;padding:3rem 0;color:var(--muted);font-style:italic}
+  .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:bounce 1.2s infinite}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+  .rec-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem}
+  .rec-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;transition:all .25s;position:relative;overflow:hidden;animation:fadeUp .4s ease both}
+  .rec-card:hover{border-color:rgba(232,201,125,.3);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .rec-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .25s}
+  .rec-card:hover::before{opacity:1}
+  .rec-number{font-family:'Playfair Display',serif;font-size:3rem;color:var(--border);position:absolute;top:.5rem;right:1rem;line-height:1;pointer-events:none}
+  .rec-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.3rem;padding-right:2rem}
+  .rec-meta{display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap}
+  .rec-tag{padding:.2rem .6rem;border-radius:4px;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+  .tag-service{background:rgba(255,255,255,.06);color:var(--muted)}
+  .tag-new{background:rgba(125,217,199,.15);color:var(--both);border:1px solid rgba(125,217,199,.3)}
+  .tag-gem{background:rgba(199,125,255,.15);color:var(--ava);border:1px solid rgba(199,125,255,.3)}
+  .tag-classic{background:rgba(255,200,100,.12);color:#c9a84c;border:1px solid rgba(255,200,100,.25)}
+  .rec-reason{font-size:.85rem;color:var(--muted);line-height:1.6}
+  .rec-watchlist-btn{margin-top:1rem;padding:.5rem 1rem;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .2s;width:100%;text-align:center}
+  .rec-watchlist-btn:hover{border-color:var(--both);color:var(--both)}.rec-watchlist-btn.added{border-color:var(--both);color:var(--both);background:rgba(125,217,199,.08)}
+  .watchlist-empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+  .watchlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .watchlist-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+  .wi-title{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:.3rem}
+  .wi-meta{font-size:.75rem;color:var(--muted)}
+  .wi-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:.2rem;transition:color .2s;flex-shrink:0}
+  .wi-remove:hover{color:#ff6b6b}
+  .history-controls{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+  .search-input{flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:.7rem 1rem;outline:none;transition:border-color .2s}
+  .search-input:focus{border-color:var(--accent)}
+  .filter-select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;padding:.7rem 1rem;outline:none;cursor:pointer}
+  .filter-select option{background:var(--surface2)}
+  .history-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;text-align:center}
+  .stat-num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--accent);display:block}
+  .stat-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .history-list{display:grid;gap:.5rem;max-height:60vh;overflow-y:auto}
+  .history-item{display:flex;align-items:center;gap:1rem;padding:.8rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;transition:border-color .15s}
+  .history-item:hover{border-color:rgba(255,255,255,.12)}
+  .hi-title{font-size:.9rem;flex:1}
+  .hi-source{font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;padding:.15rem .5rem;border-radius:3px;white-space:nowrap}
+  .source-netflix{background:rgba(229,9,20,.15);color:#e50914}.source-prime{background:rgba(0,168,225,.15);color:#00a8e1}
+  .hi-who{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .who-mark{background:var(--mark)}.who-ava{background:var(--ava)}
+  .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+  .insight-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+  .insight-card h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;color:var(--accent);margin-bottom:1.2rem}
+  .genre-bar{margin-bottom:.8rem}
+  .genre-bar-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:.3rem}
+  .genre-bar-track{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+  .genre-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .show-list{list-style:none}
+  .show-list li{padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem;display:flex;justify-content:space-between;align-items:center}
+  .show-list li:last-child{border-bottom:none}
+  .show-count{font-size:.75rem;color:var(--muted)}
+  .toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--both);color:var(--both);padding:.8rem 1.5rem;border-radius:8px;font-size:.85rem;z-index:9998;transform:translateY(100px);opacity:0;transition:all .3s}
+  .toast.show{transform:translateY(0);opacity:1}
+  @media(max-width:768px){header{padding:1rem 1.5rem}.nav-tabs{padding:0 1rem}main{padding:1.5rem}.rec-cards{grid-template-columns:1fr}.mood-grid{grid-template-columns:repeat(3,1fr)}.insights-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span>what should</span> we watch?</div>
+  <div class="profiles">
+    <div class="pp mark active" onclick="setProfile('mark')">Mark</div>
+    <div class="pp ava" onclick="setProfile('ava')">Ava</div>
+    <div class="pp both" onclick="setProfile('both')">Both</div>
+  </div>
+</header>
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showPanel('recommend')">&#10022; Recommend</div>
+  <div class="nav-tab" onclick="showPanel('watchlist')">Watchlist</div>
+  <div class="nav-tab" onclick="showPanel('history')">History</div>
+  <div class="nav-tab" onclick="showPanel('insights')">Insights</div>
+</div>
+<main>
+  <div class="panel active" id="panel-recommend">
+    <div class="section-title">Find something to watch</div>
+    <div class="section-sub">New releases, hidden gems, and overlooked titles you haven&#8217;t seen &#8212; not the usual suggestions.</div>
+    <div class="mood-grid" id="moodGrid"></div>
+    <div class="ai-controls">
+      <div class="ai-input-group"><label>Type</label>
+        <select class="ai-select" id="filterType"><option value="any">Any</option><option value="movie">Movies only</option><option value="series">Series only</option></select>
+      </div>
+      <div class="ai-input-group"><label>Service</label>
+        <select class="ai-select" id="filterService"><option value="any">Any service</option><option>Netflix</option><option>Prime Video</option><option>Max</option><option>Hulu</option><option>Paramount+</option><option>Apple TV+</option></select>
+      </div>
+      <div class="ai-input-group" style="flex:2"><label>Tell me more (optional)</label>
+        <input class="ai-input" id="freeText" placeholder="e.g. something we haven't heard of, short, international..." />
+      </div>
+      <button class="btn-recommend" id="btnRecommend" onclick="getRecommendations()">Discover &#8594;</button>
+    </div>
+    <div class="results-area" id="resultsArea"><p style="color:var(--muted);font-style:italic;padding:2rem 0">Pick a mood above to start discovering.</p></div>
+  </div>
+  <div class="panel" id="panel-watchlist">
+    <div class="section-title">Our Watchlist</div>
+    <div class="section-sub">Titles saved to watch together.</div>
+    <div id="watchlistContent"></div>
+  </div>
+  <div class="panel" id="panel-history">
+    <div class="section-title">Watch History</div>
+    <div class="section-sub">Everything watched across Netflix and Prime Video.</div>
+    <div class="history-stats" id="historyStats"></div>
+    <div class="history-controls">
+      <input class="search-input" id="historySearch" placeholder="Search titles..." oninput="filterHistory()" />
+      <select class="filter-select" id="historyProfile" onchange="filterHistory()"><option value="all">All profiles</option><option value="mark">Mark only</option><option value="ava">Ava only</option></select>
+      <select class="filter-select" id="historySource" onchange="filterHistory()"><option value="all">All services</option><option value="netflix">Netflix</option><option value="prime">Prime Video</option></select>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+  <div class="panel" id="panel-insights">
+    <div class="section-title">Viewing Insights</div>
+    <div class="section-sub">Patterns from your combined watch history.</div>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+// Supabase proxy URL - solves CORS permanently
+const PROXY = 'https://mrhgitbdobfnelnulnbg.supabase.co/functions/v1/watch-app';
+
+const MARK_NETFLIX=["Better Call Saul","Casino","After Life","Nuremberg","The Staircase","Nate Bargatze: The Tennessee Kid","The Pledge","Ricky Gervais: Mortality","Skyscraper Live","To Catch a Killer","The Covenant","Luther: The Fallen Sun","Wake Up Dead Man","Dave Chappelle","A HOUSE OF DYNAMITE","Don't Say a Word","Reptile","Ballad of a Small Player","Black Rabbit","Saturday Night","All Quiet on the Western Front","1917","Inglourious Basterds","12 Strong","Inside Man","Your Honor","Ron White","Jimmy Carr","Adolescence","Blown Away","Alone Australia","Trial by Fire","Dune","Dune: Part Two","Chef's Table","Somebody Feed Phil","Black Hawk Down","The Town","Havoc","Carry-On","The Gentlemen","Collateral","Black Mass","Woman of the Hour","Eric","Baby Reindeer","Worst Roommate Ever","Dexter","Extraction","Molly's Game","Fury","Maestro","Whiplash","Leave the World Behind","Lone Survivor","The Killer","13 Hours","Painkiller"];
+const AVA_NETFLIX=["BoJack Horseman","The Midnight Gospel","How to Train Your Dragon","Solar Opposites","Human Resources","Madagascar","Love Death and Robots","Maya and the Three","Black Mirror","BEASTARS","Dark","Arcane","Demon Slayer","Peaky Blinders","Jurassic World","Spider-Man Into the Spider-Verse","Zombieland","Blue Lock","Entergalactic","The Rain","Maboroshi","The Bad Guys","The Tearsmith","Rio","Hilda","Disenchantment","Life on Our Planet","Leon The Professional","Rebel Ridge","Supacell","Castlevania","Kill Bill","Hit Man","Godzilla Minus One","The Conjuring","Extraction","Venom","28 Years Later","To All the Boys","Free Bert","Big Mouth","Frieren","Kakegurui","Ultraman","Terminator 2","World War Z","Under Paris","Bird Box Barcelona","Sonic the Hedgehog"];
+const MARK_PRIME=["The Boys Season 5","Crime 101","Us","Nobody","Sisu","Hedda","After The Hunt","Draft Day","Frasier","The Hunt for Red October","Black Bag","A Gentleman in Moscow","The Accountant 2","Gladiator II","Jack Reacher","Saving Private Ryan","Master And Commander","The Thin Red Line","Blitz"];
+const historyData=[];
+MARK_NETFLIX.forEach(t=>historyData.push({title:t,who:'mark',source:'netflix'}));
+AVA_NETFLIX.forEach(t=>historyData.push({title:t,who:'ava',source:'netflix'}));
+MARK_PRIME.forEach(t=>historyData.push({title:t,who:'mark',source:'prime'}));
+let currentProfile='mark',selectedMoods=[],watchlist=JSON.parse(localStorage.getItem('wswwatchlist')||'[]');
+const MOODS=[{e:'\u{1F602}',l:'Laugh'},{e:'\u{1F631}',l:'Thriller'},{e:'\u{1F9E0}',l:'Mind-Bending'},{e:'\u2764\uFE0F',l:'Romance'},{e:'\u{1F4A5}',l:'Action'},{e:'\u{1F622}',l:'Emotional'},{e:'\u{1F47B}',l:'Horror'},{e:'\u{1F30D}',l:'Documentary'},{e:'\u2728',l:'Fantasy'},{e:'\u{1F50D}',l:'Mystery'},{e:'\u{1F3AD}',l:'Drama'},{e:'\u{1F37F}',l:'Easy Watch'}];
+function renderMoods(){document.getElementById('moodGrid').innerHTML=MOODS.map(m=>'<div class="mood-btn" onclick="toggleMood(\''+m.l+'\',this)"><span class="emoji">'+m.e+'</span>'+m.l+'</div>').join('');}
+function toggleMood(l,el){if(selectedMoods.includes(l)){selectedMoods=selectedMoods.filter(x=>x!==l);el.classList.remove('selected');}else{selectedMoods.push(l);el.classList.add('selected');}}
+function setProfile(p){currentProfile=p;document.querySelectorAll('.pp').forEach(e=>e.classList.remove('active'));document.querySelector('.pp.'+p).classList.add('active');}
+function showPanel(name){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('panel-'+name).classList.add('active');event.target.classList.add('active');if(name==='history')renderHistory();if(name==='watchlist')renderWatchlist();if(name==='insights')renderInsights();}
+
+async function getRecommendations(){
+  const btn=document.getElementById('btnRecommend'),area=document.getElementById('resultsArea');
+  const type=document.getElementById('filterType').value,svc=document.getElementById('filterService').value,extra=document.getElementById('freeText').value;
+  if(!selectedMoods.length&&!extra){area.innerHTML='<p style="color:#ff6b6b;padding:1rem 0;font-size:.9rem">Pick at least one mood first.</p>';return;}
+  btn.disabled=true;
+  area.innerHTML='<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:.5rem">Hunting for hidden gems and new releases\u2026</span></div>';
+  const who=currentProfile==='both'?'Mark and Ava together':currentProfile==='mark'?'Mark':'Ava';
+  let watched=[];
+  if(currentProfile==='mark'||currentProfile==='both')watched=[...MARK_NETFLIX,...MARK_PRIME];
+  if(currentProfile==='ava'||currentProfile==='both')watched=[...watched,...AVA_NETFLIX];
+  let taste='';
+  if(currentProfile==='mark'||currentProfile==='both')taste+='Mark: true crime, war films, prestige drama, crime thrillers, heist, stand-up comedy. Loves: Baby Reindeer, Adolescence, Better Call Saul, Your Honor, 1917, Inglourious Basterds, The Town. ';
+  if(currentProfile==='ava'||currentProfile==='both')taste+='Ava: anime (Demon Slayer, BEASTARS, Frieren, Blue Lock, Arcane), complex animation (BoJack Horseman, Love Death and Robots), psychological sci-fi (Dark, Black Mirror), action, horror. ';
+  const prompt='You are a film/TV DISCOVERY engine. Today is May 2025. Surface titles '+who+' have NOT seen.\nTASTE: '+taste+'\nNEVER SUGGEST: '+watched.join(', ')+'\nMood: '+selectedMoods.join(', ')+' | Type: '+type+' | Service: '+svc+' | Extra: '+(extra||'none')+'\nRULES: Exactly 8 titles. Min 3 from 2024-2025. Min 2 hidden gems (acclaimed but low mainstream visibility). Min 1 international/foreign language. No obvious blockbusters they already know. Tag each: NEW, HIDDEN GEM, INTERNATIONAL, or OVERLOOKED. Reason must reference a specific title they watched.\nJSON only, no markdown: [{"title":"","year":"","type":"Movie or Series","service":"","category":"NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":""}]';
+  try{
+    const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    if(!r.ok)throw new Error('Proxy error '+r.status);
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    let txt=d.text.trim();
+    const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
+    if(si>=0&&ei>si)txt=txt.substring(si,ei+1);
+    renderRecs(JSON.parse(txt));
+  }catch(e){area.innerHTML='<p style="color:#ff6b6b;padding:1rem 0">'+(e.message||'Something went wrong.')+'</p>';}
+  btn.disabled=false;
+}
+
+function catTag(c){const m={'NEW':'tag-new','HIDDEN GEM':'tag-gem','INTERNATIONAL':'tag-gem','OVERLOOKED':'tag-classic'};return c?'<span class="rec-tag '+(m[c]||'tag-gem')+'">'+c+'</span>':''}
+function renderRecs(recs){
+  if(!recs||!recs.length){document.getElementById('resultsArea').innerHTML='<p style="color:var(--muted)">No results. Try a different mood.</p>';return;}
+  document.getElementById('resultsArea').innerHTML='<div class="rec-cards">'+recs.map((r,i)=>{
+    const inW=watchlist.some(w=>w.title===r.title),safe=r.title.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    return '<div class="rec-card" style="animation-delay:'+i*.07+'s"><div class="rec-number">'+String(i+1).padStart(2,'0')+'</div><div class="rec-title">'+r.title+'</div><div class="rec-meta"><span class="rec-tag tag-service">'+r.year+' &middot; '+r.type+'</span><span class="rec-tag tag-service">'+r.service+'</span>'+catTag(r.category)+'</div><div class="rec-reason">'+r.reason+'</div><button class="rec-watchlist-btn'+(inW?' added':'')+'\" onclick=\"addWl(\''+safe+'\',\''+r.service+'\',\''+r.type+'\',this)\">'+(inW?'&#10003; In watchlist':'+ Add to watchlist')+'</button></div>';
+  }).join('')+'</div>';
+}
+function addWl(title,service,type,btn){
+  const i=watchlist.findIndex(w=>w.title===title);
+  if(i>=0){watchlist.splice(i,1);btn.classList.remove('added');btn.innerHTML='+ Add to watchlist';showToast('Removed');}
+  else{watchlist.push({title,service,type,added:new Date().toLocaleDateString()});btn.classList.add('added');btn.innerHTML='&#10003; In watchlist';showToast('Added to watchlist!');}
+  localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));
+}
+function renderWatchlist(){
+  const el=document.getElementById('watchlistContent');
+  if(!watchlist.length){el.innerHTML='<div class="watchlist-empty"><div style="font-size:3rem;margin-bottom:1rem">&#127916;</div><p>Watchlist is empty.</p></div>';return;}
+  el.innerHTML='<div class="watchlist-grid">'+watchlist.map((w,i)=>'<div class="watchlist-item"><div><div class="wi-title">'+w.title+'</div><div class="wi-meta">'+w.service+' &middot; '+w.type+' &middot; '+w.added+'</div></div><button class="wi-remove" onclick="removeWl('+i+')">&#10005;</button></div>').join('')+'</div>';
+}
+function removeWl(i){watchlist.splice(i,1);localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));renderWatchlist();showToast('Removed');}
+function renderHistory(){
+  const mc=historyData.filter(h=>h.who==='mark').length,ac=historyData.filter(h=>h.who==='ava').length,pc=historyData.filter(h=>h.source==='prime').length;
+  document.getElementById('historyStats').innerHTML='<div class="stat-card"><span class="stat-num">'+historyData.length+'</span><span class="stat-label">Total</span></div><div class="stat-card"><span class="stat-num" style="color:var(--mark)">'+mc+'</span><span class="stat-label">Mark</span></div><div class="stat-card"><span class="stat-num" style="color:var(--ava)">'+ac+'</span><span class="stat-label">Ava</span></div><div class="stat-card"><span class="stat-num" style="color:#00a8e1">'+pc+'</span><span class="stat-label">Prime</span></div>';
+  filterHistory();
+}
+function filterHistory(){
+  const q=(document.getElementById('historySearch')?.value||'').toLowerCase(),p=document.getElementById('historyProfile')?.value||'all',s=document.getElementById('historySource')?.value||'all';
+  const f=historyData.filter(h=>{if(p!=='all'&&h.who!==p)return false;if(s!=='all'&&h.source!==s)return false;if(q&&!h.title.toLowerCase().includes(q))return false;return true;}).slice(0,200);
+  document.getElementById('historyList').innerHTML=f.map(h=>'<div class="history-item"><div class="hi-who '+(h.who==='mark'?'who-mark':'who-ava')+'"></div><div class="hi-title">'+h.title+'</div><span class="hi-source source-'+h.source+'">'+(h.source==='netflix'?'Netflix':'Prime')+'</span></div>').join('');
+}
+function renderInsights(){
+  const ms=[{n:'Crime / Thriller',c:22},{n:'War / Military',c:14},{n:'Comedy Specials',c:13},{n:'Documentary',c:10},{n:'Action',c:9},{n:'Drama',c:8}];
+  const as=[{n:'Anime',c:45},{n:'Animation',c:30},{n:'Sci-Fi / Drama',c:22},{n:'Horror',c:17},{n:'Romance',c:12},{n:'Documentary',c:8}];
+  const mm=Math.max(...ms.map(x=>x.c)),am=Math.max(...as.map(x=>x.c));
+  document.getElementById('insightsGrid').innerHTML=
+    '<div class="insight-card"><h3>&#128250; Mark&#8217;s Genres</h3>'+ms.map(g=>'<div class="genre-bar"><div class="genre-bar-label"><span>'+g.n+'</span><span>'+g.c+'</span></div><div class="genre-bar-track"><div class="genre-bar-fill" style="width:'+Math.round(g.c/mm*100)+'%"></div></div></div>').join('')+'</div>'+
+    '<div class="insight-card"><h3>&#10024; Ava&#8217;s Genres</h3>'+as.map(g=>'<div class="genre-bar"><div class="genre-bar-label"><span>'+g.n+'</span><span>'+g.c+'</span></div><div class="genre-bar-track"><div class="genre-bar-fill" style="width:'+Math.round(g.c/am*100)+'%;background:linear-gradient(90deg,var(--ava),var(--accent2))"></div></div></div>').join('')+'</div>'+
+    '<div class="insight-card"><h3>&#127942; Mark&#8217;s Top Series</h3><ul class="show-list">'+['Better Call Saul','Your Honor','Baby Reindeer','Adolescence','The Boys S5'].map((s,i)=>'<li><span>'+(i+1)+'. '+s+'</span></li>').join('')+'</ul></div>'+
+    '<div class="insight-card"><h3>&#127942; Ava&#8217;s Top Series</h3><ul class="show-list">'+['BoJack Horseman','Dark','BEASTARS','Arcane','Demon Slayer'].map((s,i)=>'<li><span>'+(i+1)+'. '+s+'</span></li>').join('')+'</ul></div>'+
+    '<div class="insight-card" style="grid-column:1/-1"><h3>&#129309; Where Tastes Overlap</h3><ul class="show-list">'+['High-stakes crime & prestige drama','Visually stunning action films','Dark psychological thrillers','Character-driven moral complexity','Grounded stories with real stakes'].map(s=>'<li><span>'+s+'</span><span class="show-count" style="color:var(--both)">Both</span></li>').join('')+'</ul><p style="margin-top:1rem;font-size:.8rem;color:var(--muted)">Mark: crime & war films. Ava: anime & complex animation. Sweet spot: prestige drama with rich characters and moral weight.</p></div>';
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+renderMoods();renderHistory();
+</script>
+</body>
+</html>
