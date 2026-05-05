@@ -236,20 +236,43 @@ function showPanel(name){
 
 async function getRecommendations(){
   const btn=document.getElementById('btnRecommend'),area=document.getElementById('resultsArea');
-  const type=document.getElementById('filterType').value,svc=document.getElementById('filterService').value,extra=document.getElementById('freeText').value;
+  const type=document.getElementById('filterType').value;
+  const svc=document.getElementById('filterService').value;
+  const extra=document.getElementById('freeText').value;
   if(!selectedMoods.length&&!extra){area.innerHTML='<p style="color:#ff6b6b;padding:1rem 0;font-size:.9rem">Pick at least one mood first.</p>';return;}
   btn.disabled=true;
   area.innerHTML='<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:.5rem">Checking what\'s new and finding hidden gems\u2026</span></div>';
+
   const who=currentProfile==='both'?'Mark and Ava together':currentProfile==='mark'?'Mark':'Ava';
   let watched=[];
   if(currentProfile==='mark'||currentProfile==='both')watched=[...MARK_NETFLIX,...MARK_PRIME];
   if(currentProfile==='ava'||currentProfile==='both')watched=[...watched,...AVA_NETFLIX];
   const allSkip=[...new Set([...watched,...seenTitles])];
+
   let taste='';
   if(currentProfile==='mark'||currentProfile==='both')taste+='Mark: true crime, war films, prestige drama, crime thrillers, heist, stand-up. Loves: Baby Reindeer, Adolescence, Better Call Saul, Your Honor, 1917, Inglourious Basterds, The Town, The Boys. ';
   if(currentProfile==='ava'||currentProfile==='both')taste+='Ava: anime (Demon Slayer, BEASTARS, Frieren, Blue Lock, Arcane), complex animation (BoJack Horseman, Love Death and Robots), psychological sci-fi (Dark, Black Mirror), action, horror. ';
-  const newTitles=NEW_MAY_2026.filter(n=>svc==='any'||n.service===svc).map(n=>n.title+' ('+n.service+', NEW May 2026)').join(', ');
-  const prompt='You are a film/TV DISCOVERY engine. Today is May 4, 2026.\n\nCURRENT NEW RELEASES ON '+MY_SERVICES.join('/')+' (May 2026): '+newTitles+'\n\nTASTE PROFILE for '+who+':\n'+taste+'\n\nNEVER SUGGEST ANY OF THESE (already watched or marked seen):\n'+allSkip.join(', ')+'\n\nMood: '+selectedMoods.join(', ')+' | Type filter: '+type+' | Service filter: '+svc+' | Extra: '+(extra||'none')+'\n\nServices available: Netflix, Prime Video, Max, Hulu, Paramount+, Apple TV+ ONLY. Do NOT suggest MUBI, BritBox, Peacock, Shudder, Crunchyroll, Tubi, Acorn, Disney+, or any other service.\n\nRULES:\n1. Exactly 8 titles\n2. Include at least 2 from the NEW RELEASES list if they match the mood\n3. At least 2 hidden gems (acclaimed but not mainstream-famous)\n4. At least 1 international/foreign language\n5. Vary every session - never repeat from previous calls\n6. Reason: one punchy sentence naming a specific watched title as the DNA connection\n7. Category: HOT (trending now), NEW (2025-2026), HIDDEN GEM, INTERNATIONAL, or OVERLOOKED\n8. trailerQuery: best YouTube search string to find the official trailer\n\nJSON only, no markdown:\n[{"title":"","year":"","type":"Movie or Series","service":"","category":"HOT|NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":"","trailerQuery":""}]';
+
+  // Filter new releases by BOTH service and type before building the prompt
+  const typeLabel = type==='movie' ? 'Movie' : type==='series' ? 'Series' : null;
+  const filteredNew = NEW_MAY_2026.filter(n => {
+    if(svc!=='any' && n.service!==svc) return false;
+    if(typeLabel && n.type!==typeLabel) return false;
+    return true;
+  });
+  const newTitles = filteredNew.length > 0
+    ? filteredNew.map(n=>n.title+' ('+n.service+', '+n.type+', NEW May 2026)').join(', ')
+    : 'None matching current filters';
+
+  // Build hard type constraint string
+  const typeConstraint = type==='movie'
+    ? 'HARD RULE: Every single result MUST be a Movie. Do NOT include any TV series, shows, or miniseries. If it has episodes and seasons it is a series -- do not include it.'
+    : type==='series'
+    ? 'HARD RULE: Every single result MUST be a TV Series. Do NOT include any feature films or movies.'
+    : 'Type filter: any (movies and series both allowed)';
+
+  const prompt='You are a film/TV DISCOVERY engine. Today is May 4, 2026.\n\n'+typeConstraint+'\n\nCURRENT NEW RELEASES matching filters: '+newTitles+'\n\nTASTE PROFILE for '+who+':\n'+taste+'\n\nNEVER SUGGEST ANY OF THESE:\n'+allSkip.join(', ')+'\n\nMood: '+selectedMoods.join(', ')+' | Service filter: '+svc+' | Extra: '+(extra||'none')+'\n\nServices available: Netflix, Prime Video, Max, Hulu, Paramount+, Apple TV+ ONLY. Do NOT suggest MUBI, BritBox, Peacock, Shudder, Crunchyroll, Tubi, Acorn, Disney+.\n\nRULES:\n1. Exactly 8 results\n2. Include new releases from the list above when they match the mood (skip if none match)\n3. At least 2 hidden gems (acclaimed but not mainstream-famous)\n4. At least 1 international/foreign language title\n5. Vary every session\n6. Reason: one punchy sentence referencing a specific title they watched\n7. Category: HOT, NEW, HIDDEN GEM, INTERNATIONAL, or OVERLOOKED\n8. trailerQuery: best YouTube search to find the official trailer\n\nJSON only:\n[{"title":"","year":"","type":"Movie or Series","service":"","category":"HOT|NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":"","trailerQuery":""}]';
+
   try{
     const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     if(!r.ok)throw new Error('Proxy error '+r.status);
@@ -258,7 +281,11 @@ async function getRecommendations(){
     let txt=d.text.trim();
     const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
     if(si>=0&&ei>si)txt=txt.substring(si,ei+1);
-    renderRecs(JSON.parse(txt));
+    const recs=JSON.parse(txt);
+
+    // Client-side safety net: if type filter active, strip wrong-type results
+    const filtered = typeLabel ? recs.filter(r=>r.type===typeLabel) : recs;
+    renderRecs(filtered.length ? filtered : recs);
     updateSeenNotice();
   }catch(e){
     area.innerHTML='<p style="color:#ff6b6b;padding:1rem 0">'+(e.message||'Something went wrong.')+'</p>';
@@ -273,7 +300,7 @@ function catTag(c){
 }
 
 function renderRecs(recs){
-  if(!recs||!recs.length){document.getElementById('resultsArea').innerHTML='<p style="color:var(--muted)">No results. Try a different mood.</p>';return;}
+  if(!recs||!recs.length){document.getElementById('resultsArea').innerHTML='<p style="color:var(--muted)">No results. Try a different mood or loosen the filters.</p>';return;}
   document.getElementById('resultsArea').innerHTML='<div class="rec-cards">'+recs.map((r,i)=>{
     const inWl=watchlist.some(w=>w.title===r.title);
     const isSeen=seenTitles.includes(r.title);
