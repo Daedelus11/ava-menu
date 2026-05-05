@@ -74,6 +74,14 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
 .card-btn.seen-btn:hover{border-color:#ff9966;color:#ff9966}
 .card-btn.seen-btn.marked{border-color:#ff9966;color:#ff9966;background:rgba(255,153,102,.08)}
 .card-btn.trailer-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* Manual add form */
+.add-form{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:2rem}
+.add-form h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:400;color:var(--accent);margin-bottom:1rem}
+.add-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end}
+.add-row .ai-input-group{min-width:140px}
+.btn-add{padding:.7rem 1.5rem;background:transparent;border:1px solid var(--both);border-radius:8px;color:var(--both);font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-add:hover{background:rgba(125,217,199,.1)}
+/* Watchlist */
 .watchlist-empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
 .watchlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
 .watchlist-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
@@ -111,7 +119,7 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
 .show-count{font-size:.75rem;color:var(--muted)}
 .toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--both);color:var(--both);padding:.8rem 1.5rem;border-radius:8px;font-size:.85rem;z-index:9998;transform:translateY(100px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
-@media(max-width:768px){header{padding:1rem 1.5rem}.nav-tabs{padding:0 1rem}main{padding:1.5rem}.rec-cards{grid-template-columns:1fr}.mood-grid{grid-template-columns:repeat(3,1fr)}.insights-grid{grid-template-columns:1fr}.card-actions{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){header{padding:1rem 1.5rem}.nav-tabs{padding:0 1rem}main{padding:1.5rem}.rec-cards{grid-template-columns:1fr}.mood-grid{grid-template-columns:repeat(3,1fr)}.insights-grid{grid-template-columns:1fr}.card-actions{grid-template-columns:1fr 1fr}.add-row{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -142,18 +150,49 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
         <select class="ai-select" id="filterService"><option value="any">Any service</option><option>Netflix</option><option>Prime Video</option><option>Max</option><option>Hulu</option><option>Paramount+</option><option>Apple TV+</option></select>
       </div>
       <div class="ai-input-group" style="flex:2"><label>Tell me more (optional)</label>
-        <input class="ai-input" id="freeText" placeholder="e.g. something new this month, under 2hrs, foreign..." />
+        <input class="ai-input" id="freeText" placeholder="e.g. like Slumdog Millionaire, under 2hrs, foreign..." />
       </div>
       <button class="btn-recommend" id="btnRecommend" onclick="getRecommendations()">Discover &#8594;</button>
     </div>
     <div class="seen-notice" id="seenNotice"></div>
     <div class="results-area" id="resultsArea"><p style="color:var(--muted);font-style:italic;padding:2rem 0">Pick a mood above to start discovering.</p></div>
   </div>
+
   <div class="panel" id="panel-watchlist">
     <div class="section-title">Our Watchlist</div>
-    <div class="section-sub">Titles saved to watch together.</div>
+    <div class="section-sub">Titles to watch together &#8212; add from recommendations or manually below.</div>
+    <div class="add-form">
+      <h3>&#43; Add manually</h3>
+      <div class="add-row">
+        <div class="ai-input-group" style="flex:3;min-width:200px">
+          <label>Title</label>
+          <input class="ai-input" id="manualTitle" placeholder="e.g. Slumdog Millionaire" />
+        </div>
+        <div class="ai-input-group">
+          <label>Service</label>
+          <select class="ai-select" id="manualService">
+            <option value="Netflix">Netflix</option>
+            <option value="Prime Video">Prime Video</option>
+            <option value="Max">Max</option>
+            <option value="Hulu">Hulu</option>
+            <option value="Paramount+">Paramount+</option>
+            <option value="Apple TV+">Apple TV+</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="ai-input-group">
+          <label>Type</label>
+          <select class="ai-select" id="manualType">
+            <option value="Movie">Movie</option>
+            <option value="Series">Series</option>
+          </select>
+        </div>
+        <button class="btn-add" onclick="manualAdd()">Add to Watchlist</button>
+      </div>
+    </div>
     <div id="watchlistContent"></div>
   </div>
+
   <div class="panel" id="panel-history">
     <div class="section-title">Watch History</div>
     <div class="section-sub">Everything watched across Netflix and Prime Video.</div>
@@ -165,6 +204,7 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
     </div>
     <div class="history-list" id="historyList"></div>
   </div>
+
   <div class="panel" id="panel-insights">
     <div class="section-title">Viewing Insights</div>
     <div class="section-sub">Patterns from your combined watch history.</div>
@@ -181,12 +221,13 @@ const MARK_NETFLIX=["Better Call Saul","Casino","After Life","Nuremberg","The St
 const AVA_NETFLIX=["BoJack Horseman","The Midnight Gospel","How to Train Your Dragon","Solar Opposites","Human Resources","Madagascar","Love Death and Robots","Maya and the Three","Black Mirror","BEASTARS","Dark","Arcane","Demon Slayer","Peaky Blinders","Jurassic World","Spider-Man Into the Spider-Verse","Zombieland","Blue Lock","Entergalactic","The Rain","Maboroshi","The Bad Guys","The Tearsmith","Rio","Hilda","Disenchantment","Life on Our Planet","Leon The Professional","Rebel Ridge","Supacell","Castlevania","Kill Bill","Hit Man","Godzilla Minus One","The Conjuring","Extraction","Venom","28 Years Later","To All the Boys","Free Bert","Big Mouth","Frieren","Kakegurui","Ultraman","Terminator 2","World War Z","Under Paris","Bird Box Barcelona","Sonic the Hedgehog"];
 const MARK_PRIME=["The Boys Season 5","Crime 101","Us","Nobody","Sisu","Hedda","After The Hunt","Draft Day","Frasier","The Hunt for Red October","Black Bag","A Gentleman in Moscow","The Accountant 2","Gladiator II","Jack Reacher","Saving Private Ryan","Master And Commander","The Thin Red Line","Blitz"];
 
+// Corrected: Jack Ryan Ghost War is a Series, not a Movie
 const NEW_MAY_2026=[
   {title:"Remarkably Bright Creatures",service:"Netflix",type:"Movie",year:"2026"},
   {title:"The Boroughs",service:"Netflix",type:"Series",year:"2026"},
   {title:"Lord of the Flies",service:"Netflix",type:"Series",year:"2026"},
   {title:"Wuthering Heights",service:"Max",type:"Movie",year:"2026"},
-  {title:"Jack Ryan: Ghost War",service:"Prime Video",type:"Movie",year:"2026"},
+  {title:"Jack Ryan: Ghost War",service:"Prime Video",type:"Series",year:"2026"},
   {title:"Good Omens Season 3",service:"Prime Video",type:"Series",year:"2026"},
   {title:"Spider-Noir",service:"Prime Video",type:"Series",year:"2026"},
   {title:"The House of the Spirits",service:"Prime Video",type:"Series",year:"2026"},
@@ -253,7 +294,6 @@ async function getRecommendations(){
   if(currentProfile==='mark'||currentProfile==='both')taste+='Mark: true crime, war films, prestige drama, crime thrillers, heist, stand-up. Loves: Baby Reindeer, Adolescence, Better Call Saul, Your Honor, 1917, Inglourious Basterds, The Town, The Boys. ';
   if(currentProfile==='ava'||currentProfile==='both')taste+='Ava: anime (Demon Slayer, BEASTARS, Frieren, Blue Lock, Arcane), complex animation (BoJack Horseman, Love Death and Robots), psychological sci-fi (Dark, Black Mirror), action, horror. ';
 
-  // Filter new releases by BOTH service and type before building the prompt
   const typeLabel = type==='movie' ? 'Movie' : type==='series' ? 'Series' : null;
   const filteredNew = NEW_MAY_2026.filter(n => {
     if(svc!=='any' && n.service!==svc) return false;
@@ -264,14 +304,28 @@ async function getRecommendations(){
     ? filteredNew.map(n=>n.title+' ('+n.service+', '+n.type+', NEW May 2026)').join(', ')
     : 'None matching current filters';
 
-  // Build hard type constraint string
   const typeConstraint = type==='movie'
-    ? 'HARD RULE: Every single result MUST be a Movie. Do NOT include any TV series, shows, or miniseries. If it has episodes and seasons it is a series -- do not include it.'
+    ? 'CRITICAL: You MUST only return Movies. NO TV series, NO shows, NO miniseries whatsoever. A movie is a single feature film, not episodic. If you are unsure whether something is a movie or series, skip it.'
     : type==='series'
-    ? 'HARD RULE: Every single result MUST be a TV Series. Do NOT include any feature films or movies.'
-    : 'Type filter: any (movies and series both allowed)';
+    ? 'CRITICAL: You MUST only return TV Series. NO feature films or movies whatsoever.'
+    : '';
 
-  const prompt='You are a film/TV DISCOVERY engine. Today is May 4, 2026.\n\n'+typeConstraint+'\n\nCURRENT NEW RELEASES matching filters: '+newTitles+'\n\nTASTE PROFILE for '+who+':\n'+taste+'\n\nNEVER SUGGEST ANY OF THESE:\n'+allSkip.join(', ')+'\n\nMood: '+selectedMoods.join(', ')+' | Service filter: '+svc+' | Extra: '+(extra||'none')+'\n\nServices available: Netflix, Prime Video, Max, Hulu, Paramount+, Apple TV+ ONLY. Do NOT suggest MUBI, BritBox, Peacock, Shudder, Crunchyroll, Tubi, Acorn, Disney+.\n\nRULES:\n1. Exactly 8 results\n2. Include new releases from the list above when they match the mood (skip if none match)\n3. At least 2 hidden gems (acclaimed but not mainstream-famous)\n4. At least 1 international/foreign language title\n5. Vary every session\n6. Reason: one punchy sentence referencing a specific title they watched\n7. Category: HOT, NEW, HIDDEN GEM, INTERNATIONAL, or OVERLOOKED\n8. trailerQuery: best YouTube search to find the official trailer\n\nJSON only:\n[{"title":"","year":"","type":"Movie or Series","service":"","category":"HOT|NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":"","trailerQuery":""}]';
+  const prompt='You are a film/TV DISCOVERY engine. Today is May 5, 2026.\n\n'+(typeConstraint?typeConstraint+'\n\n':'')+
+    'CURRENT NEW RELEASES matching filters: '+newTitles+'\n\n'+
+    'TASTE PROFILE for '+who+':\n'+taste+'\n\n'+
+    'NEVER SUGGEST ANY OF THESE (already watched or marked seen):\n'+allSkip.join(', ')+'\n\n'+
+    'Mood: '+selectedMoods.join(', ')+' | Service filter: '+svc+(extra?' | Viewer requested: '+extra:'')+'\n\n'+
+    'Services available ONLY: Netflix, Prime Video, Max, Hulu, Paramount+, Apple TV+. Never suggest MUBI, BritBox, Peacock, Shudder, Crunchyroll, Tubi, Acorn, Disney+.\n\n'+
+    'RULES:\n'+
+    '1. Return exactly 8 results\n'+
+    '2. Include matching new releases above when they fit the mood\n'+
+    '3. At least 2 hidden gems (critically praised but not mainstream-famous)\n'+
+    '4. At least 1 international/foreign language title\n'+
+    '5. Fresh picks every session -- vary from common suggestions\n'+
+    '6. Reason: one punchy sentence referencing a specific title they watched\n'+
+    '7. Category: HOT, NEW, HIDDEN GEM, INTERNATIONAL, or OVERLOOKED\n\n'+
+    'JSON only, no markdown:\n'+
+    '[{"title":"","year":"","type":"Movie or Series","service":"","category":"HOT|NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":"","trailerQuery":""}]';
 
   try{
     const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
@@ -282,8 +336,6 @@ async function getRecommendations(){
     const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
     if(si>=0&&ei>si)txt=txt.substring(si,ei+1);
     const recs=JSON.parse(txt);
-
-    // Client-side safety net: if type filter active, strip wrong-type results
     const filtered = typeLabel ? recs.filter(r=>r.type===typeLabel) : recs;
     renderRecs(filtered.length ? filtered : recs);
     updateSeenNotice();
@@ -328,13 +380,11 @@ function markSeen(title,btn,cardIdx){
   const card=document.getElementById('card-'+cardIdx);
   if(seenTitles.includes(title)){
     seenTitles=seenTitles.filter(t=>t!==title);
-    btn.classList.remove('marked');
-    btn.innerHTML='&#128064; Seen it';
+    btn.classList.remove('marked');btn.innerHTML='&#128064; Seen it';
     card.classList.remove('seen-card');
   } else {
     seenTitles.push(title);
-    btn.classList.add('marked');
-    btn.innerHTML='&#10003; Seen';
+    btn.classList.add('marked');btn.innerHTML='&#10003; Seen';
     card.classList.add('seen-card');
     showToast('Marked as seen \u2014 won\'t show again');
   }
@@ -352,6 +402,25 @@ function updateSeenNotice(){
   }
 }
 
+// ---- Watchlist ----
+function manualAdd(){
+  const title=document.getElementById('manualTitle').value.trim();
+  if(!title){showToast('Enter a title first.');return;}
+  const service=document.getElementById('manualService').value;
+  const type=document.getElementById('manualType').value;
+  if(watchlist.some(w=>w.title===title)){showToast('Already in watchlist.');return;}
+  watchlist.push({title,service,type,added:new Date().toLocaleDateString()});
+  localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));
+  document.getElementById('manualTitle').value='';
+  renderWatchlist();
+  showToast('Added: '+title);
+}
+
+// Allow Enter key in title input
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('manualTitle').addEventListener('keydown',e=>{if(e.key==='Enter')manualAdd();});
+});
+
 function toggleWl(title,service,type,btn){
   const i=watchlist.findIndex(w=>w.title===title);
   if(i>=0){watchlist.splice(i,1);btn.classList.remove('added');btn.innerHTML='+ Watchlist';showToast('Removed from watchlist');}
@@ -360,11 +429,17 @@ function toggleWl(title,service,type,btn){
 }
 function renderWatchlist(){
   const el=document.getElementById('watchlistContent');
-  if(!watchlist.length){el.innerHTML='<div class="watchlist-empty"><div style="font-size:3rem;margin-bottom:1rem">&#127916;</div><p>Watchlist is empty.</p></div>';return;}
-  el.innerHTML='<div class="watchlist-grid">'+watchlist.map((w,i)=>'<div class="watchlist-item"><div><div class="wi-title">'+w.title+'</div><div class="wi-meta">'+w.service+' &middot; '+w.type+' &middot; '+w.added+'</div></div><button class="wi-remove" onclick="removeWl('+i+')">&#10005;</button></div>').join('')+'</div>';
+  if(!watchlist.length){
+    el.innerHTML='<div class="watchlist-empty"><div style="font-size:3rem;margin-bottom:1rem">&#127916;</div><p>Nothing saved yet. Add from recommendations or use the form above.</p></div>';
+    return;
+  }
+  el.innerHTML='<div class="watchlist-grid">'+watchlist.map((w,i)=>
+    '<div class="watchlist-item"><div><div class="wi-title">'+w.title+'</div><div class="wi-meta">'+w.service+' &middot; '+w.type+' &middot; Added '+w.added+'</div></div><button class="wi-remove" onclick="removeWl('+i+')" title="Remove">&#10005;</button></div>'
+  ).join('')+'</div>';
 }
 function removeWl(i){watchlist.splice(i,1);localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));renderWatchlist();showToast('Removed');}
 
+// ---- History ----
 function renderHistory(){
   const mc=historyData.filter(h=>h.who==='mark').length,ac=historyData.filter(h=>h.who==='ava').length,pc=historyData.filter(h=>h.source==='prime').length;
   document.getElementById('historyStats').innerHTML=
@@ -380,6 +455,7 @@ function filterHistory(){
   document.getElementById('historyList').innerHTML=f.map(h=>'<div class="history-item"><div class="hi-who '+(h.who==='mark'?'who-mark':'who-ava')+'"></div><div class="hi-title">'+h.title+'</div><span class="hi-source source-'+h.source+'">'+(h.source==='netflix'?'Netflix':'Prime')+'</span></div>').join('');
 }
 
+// ---- Insights ----
 function renderInsights(){
   const ms=[{n:'Crime / Thriller',c:22},{n:'War / Military',c:14},{n:'Comedy Specials',c:13},{n:'Documentary',c:10},{n:'Action',c:9},{n:'Drama',c:8}];
   const as=[{n:'Anime',c:45},{n:'Animation',c:30},{n:'Sci-Fi / Drama',c:22},{n:'Horror',c:17},{n:'Romance',c:12},{n:'Documentary',c:8}];
