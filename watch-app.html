@@ -74,16 +74,6 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
 .card-btn.seen-btn:hover{border-color:#ff9966;color:#ff9966}
 .card-btn.seen-btn.marked{border-color:#ff9966;color:#ff9966;background:rgba(255,153,102,.08)}
 .card-btn.trailer-btn:hover{border-color:var(--accent);color:var(--accent)}
-/* Trailer modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)}
-.modal-bg.hidden{display:none}
-.modal-inner{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;width:100%;max-width:760px;position:relative}
-.modal-close{position:absolute;top:.75rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;z-index:1;transition:color .2s}
-.modal-close:hover{color:var(--text)}
-.modal-title{padding:1rem 1.5rem .5rem;font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text);padding-right:2.5rem}
-.modal-frame{position:relative;padding-bottom:56.25%;height:0}
-.modal-frame iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
-/* Watchlist, history, insights */
 .watchlist-empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
 .watchlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
 .watchlist-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
@@ -125,18 +115,6 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
 </style>
 </head>
 <body>
-
-<!-- Trailer modal -->
-<div class="modal-bg hidden" id="trailerModal">
-  <div class="modal-inner">
-    <button class="modal-close" onclick="closeTrailer()">&#10005;</button>
-    <div class="modal-title" id="trailerTitle"></div>
-    <div class="modal-frame">
-      <iframe id="trailerFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
-  </div>
-</div>
-
 <header>
   <div class="logo"><span>what should</span> we watch?</div>
   <div class="profiles">
@@ -197,17 +175,13 @@ main{padding:2.5rem 3rem;max-width:1400px;margin:0 auto}
 
 <script>
 const PROXY = 'https://mrhgitbdobfnelnulnbg.supabase.co/functions/v1/watch-app';
-const YT_SEARCH = 'https://www.youtube.com/results?search_query=';
-
-// Available services only
 const MY_SERVICES = ['Netflix','Prime Video','Max','Hulu','Paramount+','Apple TV+'];
 
 const MARK_NETFLIX=["Better Call Saul","Casino","After Life","Nuremberg","The Staircase","Nate Bargatze: The Tennessee Kid","The Pledge","Ricky Gervais: Mortality","Skyscraper Live","To Catch a Killer","The Covenant","Luther: The Fallen Sun","Wake Up Dead Man","Dave Chappelle","A HOUSE OF DYNAMITE","Don't Say a Word","Reptile","Ballad of a Small Player","Black Rabbit","Saturday Night","All Quiet on the Western Front","1917","Inglourious Basterds","12 Strong","Inside Man","Your Honor","Ron White","Jimmy Carr","Adolescence","Blown Away","Alone Australia","Trial by Fire","Dune","Dune: Part Two","Chef's Table","Somebody Feed Phil","Black Hawk Down","The Town","Havoc","Carry-On","The Gentlemen","Collateral","Black Mass","Woman of the Hour","Eric","Baby Reindeer","Worst Roommate Ever","Dexter","Extraction","Molly's Game","Fury","Maestro","Whiplash","Leave the World Behind","Lone Survivor","The Killer","13 Hours","Painkiller"];
 const AVA_NETFLIX=["BoJack Horseman","The Midnight Gospel","How to Train Your Dragon","Solar Opposites","Human Resources","Madagascar","Love Death and Robots","Maya and the Three","Black Mirror","BEASTARS","Dark","Arcane","Demon Slayer","Peaky Blinders","Jurassic World","Spider-Man Into the Spider-Verse","Zombieland","Blue Lock","Entergalactic","The Rain","Maboroshi","The Bad Guys","The Tearsmith","Rio","Hilda","Disenchantment","Life on Our Planet","Leon The Professional","Rebel Ridge","Supacell","Castlevania","Kill Bill","Hit Man","Godzilla Minus One","The Conjuring","Extraction","Venom","28 Years Later","To All the Boys","Free Bert","Big Mouth","Frieren","Kakegurui","Ultraman","Terminator 2","World War Z","Under Paris","Bird Box Barcelona","Sonic the Hedgehog"];
 const MARK_PRIME=["The Boys Season 5","Crime 101","Us","Nobody","Sisu","Hedda","After The Hunt","Draft Day","Frasier","The Hunt for Red October","Black Bag","A Gentleman in Moscow","The Accountant 2","Gladiator II","Jack Reacher","Saving Private Ryan","Master And Commander","The Thin Red Line","Blitz"];
 
-// New May 2026 releases on services we have
-const NEW_MAY_2026 = [
+const NEW_MAY_2026=[
   {title:"Remarkably Bright Creatures",service:"Netflix",type:"Movie",year:"2026"},
   {title:"The Boroughs",service:"Netflix",type:"Series",year:"2026"},
   {title:"Lord of the Flies",service:"Netflix",type:"Series",year:"2026"},
@@ -232,9 +206,9 @@ MARK_NETFLIX.forEach(t=>historyData.push({title:t,who:'mark',source:'netflix'}))
 AVA_NETFLIX.forEach(t=>historyData.push({title:t,who:'ava',source:'netflix'}));
 MARK_PRIME.forEach(t=>historyData.push({title:t,who:'mark',source:'prime'}));
 
-let currentProfile='mark', selectedMoods=[];
+let currentProfile='mark',selectedMoods=[];
 let watchlist=JSON.parse(localStorage.getItem('wswwatchlist')||'[]');
-let seenTitles=JSON.parse(localStorage.getItem('wswseen')||'[]'); // user-marked "already seen"
+let seenTitles=JSON.parse(localStorage.getItem('wswseen')||'[]');
 
 const MOODS=[{e:'\u{1F602}',l:'Laugh'},{e:'\u{1F631}',l:'Thriller'},{e:'\u{1F9E0}',l:'Mind-Bending'},{e:'\u2764\uFE0F',l:'Romance'},{e:'\u{1F4A5}',l:'Action'},{e:'\u{1F622}',l:'Emotional'},{e:'\u{1F47B}',l:'Horror'},{e:'\u{1F30D}',l:'Documentary'},{e:'\u2728',l:'Fantasy'},{e:'\u{1F50D}',l:'Mystery'},{e:'\u{1F3AD}',l:'Drama'},{e:'\u{1F37F}',l:'Easy Watch'}];
 
@@ -266,22 +240,16 @@ async function getRecommendations(){
   if(!selectedMoods.length&&!extra){area.innerHTML='<p style="color:#ff6b6b;padding:1rem 0;font-size:.9rem">Pick at least one mood first.</p>';return;}
   btn.disabled=true;
   area.innerHTML='<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:.5rem">Checking what\'s new and finding hidden gems\u2026</span></div>';
-
   const who=currentProfile==='both'?'Mark and Ava together':currentProfile==='mark'?'Mark':'Ava';
   let watched=[];
   if(currentProfile==='mark'||currentProfile==='both')watched=[...MARK_NETFLIX,...MARK_PRIME];
   if(currentProfile==='ava'||currentProfile==='both')watched=[...watched,...AVA_NETFLIX];
-  // Add user-marked "already seen" titles to the never-suggest list
   const allSkip=[...new Set([...watched,...seenTitles])];
-
   let taste='';
   if(currentProfile==='mark'||currentProfile==='both')taste+='Mark: true crime, war films, prestige drama, crime thrillers, heist, stand-up. Loves: Baby Reindeer, Adolescence, Better Call Saul, Your Honor, 1917, Inglourious Basterds, The Town, The Boys. ';
   if(currentProfile==='ava'||currentProfile==='both')taste+='Ava: anime (Demon Slayer, BEASTARS, Frieren, Blue Lock, Arcane), complex animation (BoJack Horseman, Love Death and Robots), psychological sci-fi (Dark, Black Mirror), action, horror. ';
-
   const newTitles=NEW_MAY_2026.filter(n=>svc==='any'||n.service===svc).map(n=>n.title+' ('+n.service+', NEW May 2026)').join(', ');
-
-  const prompt='You are a film/TV DISCOVERY engine. Today is May 4, 2026.\n\nCURRENT NEW RELEASES ON '+MY_SERVICES.join('/')+' (May 2026): '+newTitles+'\n\nTASTE PROFILE for '+who+':\n'+taste+'\n\nNEVER SUGGEST ANY OF THESE (already watched or marked seen):\n'+allSkip.join(', ')+'\n\nMood: '+selectedMoods.join(', ')+' | Type filter: '+type+' | Service filter: '+svc+' | Extra: '+(extra||'none')+'\n\nServices available: Netflix, Prime Video, Max, Hulu, Paramount+, Apple TV+ ONLY. Do NOT suggest MUBI, BritBox, Peacock, Shudder, Crunchyroll, Tubi, Acorn, Disney+, or any other service.\n\nRULES:\n1. Recommend exactly 8 titles\n2. You MUST include at least 2 titles from the NEW RELEASES list above if they match the mood\n3. At least 2 hidden gems (acclaimed but not mainstream-famous)\n4. At least 1 international/foreign language\n5. Vary recommendations each time - do not repeat titles from previous sessions\n6. Reason: one punchy sentence naming a specific watched title as the connection\n7. Assign category: HOT (trending/popular right now), NEW (2025-2026 release), HIDDEN GEM, INTERNATIONAL, or OVERLOOKED\n\nJSON only, no markdown:\n[{"title":"","year":"","type":"Movie or Series","service":"","category":"HOT|NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":"","trailerQuery":"title year official trailer"}]';
-
+  const prompt='You are a film/TV DISCOVERY engine. Today is May 4, 2026.\n\nCURRENT NEW RELEASES ON '+MY_SERVICES.join('/')+' (May 2026): '+newTitles+'\n\nTASTE PROFILE for '+who+':\n'+taste+'\n\nNEVER SUGGEST ANY OF THESE (already watched or marked seen):\n'+allSkip.join(', ')+'\n\nMood: '+selectedMoods.join(', ')+' | Type filter: '+type+' | Service filter: '+svc+' | Extra: '+(extra||'none')+'\n\nServices available: Netflix, Prime Video, Max, Hulu, Paramount+, Apple TV+ ONLY. Do NOT suggest MUBI, BritBox, Peacock, Shudder, Crunchyroll, Tubi, Acorn, Disney+, or any other service.\n\nRULES:\n1. Exactly 8 titles\n2. Include at least 2 from the NEW RELEASES list if they match the mood\n3. At least 2 hidden gems (acclaimed but not mainstream-famous)\n4. At least 1 international/foreign language\n5. Vary every session - never repeat from previous calls\n6. Reason: one punchy sentence naming a specific watched title as the DNA connection\n7. Category: HOT (trending now), NEW (2025-2026), HIDDEN GEM, INTERNATIONAL, or OVERLOOKED\n8. trailerQuery: best YouTube search string to find the official trailer\n\nJSON only, no markdown:\n[{"title":"","year":"","type":"Movie or Series","service":"","category":"HOT|NEW|HIDDEN GEM|INTERNATIONAL|OVERLOOKED","reason":"","trailerQuery":""}]';
   try{
     const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     if(!r.ok)throw new Error('Proxy error '+r.status);
@@ -299,31 +267,25 @@ async function getRecommendations(){
 }
 
 function catTag(c){
-  const m={
-    'HOT':'tag-hot','NEW':'tag-new',
-    'HIDDEN GEM':'tag-gem','INTERNATIONAL':'tag-gem','OVERLOOKED':'tag-classic'
-  };
+  const m={'HOT':'tag-hot','NEW':'tag-new','HIDDEN GEM':'tag-gem','INTERNATIONAL':'tag-gem','OVERLOOKED':'tag-classic'};
   const icons={'HOT':'&#128293;','NEW':'&#127381;','HIDDEN GEM':'&#128142;','INTERNATIONAL':'&#127758;','OVERLOOKED':'&#8987;'};
   return c?'<span class="rec-tag '+(m[c]||'tag-gem')+'">'+(icons[c]||'')+' '+c+'</span>':'';
 }
 
 function renderRecs(recs){
-  if(!recs||!recs.length){
-    document.getElementById('resultsArea').innerHTML='<p style="color:var(--muted)">No results. Try a different mood.</p>';
-    return;
-  }
+  if(!recs||!recs.length){document.getElementById('resultsArea').innerHTML='<p style="color:var(--muted)">No results. Try a different mood.</p>';return;}
   document.getElementById('resultsArea').innerHTML='<div class="rec-cards">'+recs.map((r,i)=>{
     const inWl=watchlist.some(w=>w.title===r.title);
     const isSeen=seenTitles.includes(r.title);
     const safe=r.title.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    const tq=encodeURIComponent(r.trailerQuery||r.title+' '+r.year+' official trailer');
+    const tq=encodeURIComponent((r.trailerQuery||r.title+' '+r.year+' official trailer').trim());
     return '<div class="rec-card'+(isSeen?' seen-card':'')+'" style="animation-delay:'+i*.07+'s" id="card-'+i+'">'+
       '<div class="rec-number">'+String(i+1).padStart(2,'0')+'</div>'+
       '<div class="rec-title">'+r.title+(isSeen?' <span style="font-size:.65rem;color:#ff9966;font-family:DM Sans,sans-serif;font-weight:500">&#10003; SEEN</span>':'')+'</div>'+
       '<div class="rec-meta"><span class="rec-tag tag-service">'+r.year+' &middot; '+r.type+'</span><span class="rec-tag tag-service">'+r.service+'</span>'+catTag(r.category)+'</div>'+
       '<div class="rec-reason">'+r.reason+'</div>'+
       '<div class="card-actions">'+
-        '<button class="card-btn trailer-btn" onclick="openTrailer(\''+safe+'\',\''+tq+'\')">&#9654; Trailer</button>'+
+        '<button class="card-btn trailer-btn" onclick="openTrailer(\''+tq+'\')">&#9654; Trailer</button>'+
         '<button class="card-btn wl-btn'+(inWl?' added':'')+'\" onclick=\"toggleWl(\''+safe+'\',\''+r.service+'\',\''+r.type+'\',this)\">'+(inWl?'&#10003; Saved':'+ Watchlist')+'</button>'+
         '<button class="card-btn seen-btn'+(isSeen?' marked':'')+'\" onclick=\"markSeen(\''+safe+'\',this,'+i+')\">'+(isSeen?'&#10003; Seen':'&#128064; Seen it')+'</button>'+
       '</div>'+
@@ -331,22 +293,11 @@ function renderRecs(recs){
   }).join('')+'</div>';
 }
 
-// ---- Trailer ----
-function openTrailer(title, query){
-  document.getElementById('trailerTitle').textContent=title;
-  // Use YouTube nocookie embed search
-  const ytUrl='https://www.youtube-nocookie.com/embed?listType=search&list='+query+'&autoplay=1';
-  document.getElementById('trailerFrame').src=ytUrl;
-  document.getElementById('trailerModal').classList.remove('hidden');
+function openTrailer(query){
+  window.open('https://www.youtube.com/results?search_query='+query,'_blank');
 }
-function closeTrailer(){
-  document.getElementById('trailerModal').classList.add('hidden');
-  document.getElementById('trailerFrame').src='';
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTrailer();});
 
-// ---- Already Seen ----
-function markSeen(title, btn, cardIdx){
+function markSeen(title,btn,cardIdx){
   const card=document.getElementById('card-'+cardIdx);
   if(seenTitles.includes(title)){
     seenTitles=seenTitles.filter(t=>t!==title);
@@ -367,42 +318,26 @@ function markSeen(title, btn, cardIdx){
 function updateSeenNotice(){
   const el=document.getElementById('seenNotice');
   if(seenTitles.length>0){
-    el.textContent='Excluding '+seenTitles.length+' title'+(seenTitles.length>1?'s':'')+' you\'ve marked as seen. Next search will avoid them.';
+    el.textContent='Excluding '+seenTitles.length+' title'+(seenTitles.length>1?'s':'')+' you\'ve marked as seen.';
     el.classList.add('visible');
   } else {
     el.classList.remove('visible');
   }
 }
 
-// ---- Watchlist ----
 function toggleWl(title,service,type,btn){
   const i=watchlist.findIndex(w=>w.title===title);
-  if(i>=0){
-    watchlist.splice(i,1);
-    btn.classList.remove('added');
-    btn.innerHTML='+ Watchlist';
-    showToast('Removed from watchlist');
-  } else {
-    watchlist.push({title,service,type,added:new Date().toLocaleDateString()});
-    btn.classList.add('added');
-    btn.innerHTML='&#10003; Saved';
-    showToast('Added to watchlist!');
-  }
+  if(i>=0){watchlist.splice(i,1);btn.classList.remove('added');btn.innerHTML='+ Watchlist';showToast('Removed from watchlist');}
+  else{watchlist.push({title,service,type,added:new Date().toLocaleDateString()});btn.classList.add('added');btn.innerHTML='&#10003; Saved';showToast('Added to watchlist!');}
   localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));
 }
 function renderWatchlist(){
   const el=document.getElementById('watchlistContent');
-  if(!watchlist.length){
-    el.innerHTML='<div class="watchlist-empty"><div style="font-size:3rem;margin-bottom:1rem">&#127916;</div><p>Watchlist is empty.</p></div>';
-    return;
-  }
-  el.innerHTML='<div class="watchlist-grid">'+watchlist.map((w,i)=>
-    '<div class="watchlist-item"><div><div class="wi-title">'+w.title+'</div><div class="wi-meta">'+w.service+' &middot; '+w.type+' &middot; '+w.added+'</div></div><button class="wi-remove" onclick="removeWl('+i+')">&#10005;</button></div>'
-  ).join('')+'</div>';
+  if(!watchlist.length){el.innerHTML='<div class="watchlist-empty"><div style="font-size:3rem;margin-bottom:1rem">&#127916;</div><p>Watchlist is empty.</p></div>';return;}
+  el.innerHTML='<div class="watchlist-grid">'+watchlist.map((w,i)=>'<div class="watchlist-item"><div><div class="wi-title">'+w.title+'</div><div class="wi-meta">'+w.service+' &middot; '+w.type+' &middot; '+w.added+'</div></div><button class="wi-remove" onclick="removeWl('+i+')">&#10005;</button></div>').join('')+'</div>';
 }
 function removeWl(i){watchlist.splice(i,1);localStorage.setItem('wswwatchlist',JSON.stringify(watchlist));renderWatchlist();showToast('Removed');}
 
-// ---- History ----
 function renderHistory(){
   const mc=historyData.filter(h=>h.who==='mark').length,ac=historyData.filter(h=>h.who==='ava').length,pc=historyData.filter(h=>h.source==='prime').length;
   document.getElementById('historyStats').innerHTML=
@@ -415,12 +350,9 @@ function renderHistory(){
 function filterHistory(){
   const q=(document.getElementById('historySearch')?.value||'').toLowerCase(),p=document.getElementById('historyProfile')?.value||'all',s=document.getElementById('historySource')?.value||'all';
   const f=historyData.filter(h=>{if(p!=='all'&&h.who!==p)return false;if(s!=='all'&&h.source!==s)return false;if(q&&!h.title.toLowerCase().includes(q))return false;return true;}).slice(0,200);
-  document.getElementById('historyList').innerHTML=f.map(h=>
-    '<div class="history-item"><div class="hi-who '+(h.who==='mark'?'who-mark':'who-ava')+'"></div><div class="hi-title">'+h.title+'</div><span class="hi-source source-'+h.source+'">'+(h.source==='netflix'?'Netflix':'Prime')+'</span></div>'
-  ).join('');
+  document.getElementById('historyList').innerHTML=f.map(h=>'<div class="history-item"><div class="hi-who '+(h.who==='mark'?'who-mark':'who-ava')+'"></div><div class="hi-title">'+h.title+'</div><span class="hi-source source-'+h.source+'">'+(h.source==='netflix'?'Netflix':'Prime')+'</span></div>').join('');
 }
 
-// ---- Insights ----
 function renderInsights(){
   const ms=[{n:'Crime / Thriller',c:22},{n:'War / Military',c:14},{n:'Comedy Specials',c:13},{n:'Documentary',c:10},{n:'Action',c:9},{n:'Drama',c:8}];
   const as=[{n:'Anime',c:45},{n:'Animation',c:30},{n:'Sci-Fi / Drama',c:22},{n:'Horror',c:17},{n:'Romance',c:12},{n:'Documentary',c:8}];
@@ -435,9 +367,7 @@ function renderInsights(){
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-renderMoods();
-renderHistory();
-updateSeenNotice();
+renderMoods();renderHistory();updateSeenNotice();
 </script>
 </body>
 </html>
